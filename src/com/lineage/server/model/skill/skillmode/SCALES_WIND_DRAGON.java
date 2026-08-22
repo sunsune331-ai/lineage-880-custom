@@ -1,0 +1,47 @@
+package com.lineage.server.model.skill.skillmode;
+
+import static com.lineage.server.model.skill.L1SkillId.SCALES_WIND_DRAGON;
+
+import com.lineage.server.model.L1Character;
+import com.lineage.server.model.L1Magic;
+import com.lineage.server.model.Instance.L1NpcInstance;
+import com.lineage.server.model.Instance.L1PcInstance;
+import com.lineage.server.serverpackets.S_PacketBoxIcon1;
+
+/**
+ * 龍騎士新技能 覺醒：林德拜爾197
+ */
+public class SCALES_WIND_DRAGON extends SkillMode {
+
+	// 以風龍之力的狀態覺醒：DG加7
+
+	public int start(final L1PcInstance srcpc, final L1Character cha, final L1Magic magic, final int integer)
+			throws Exception {
+		final int dmg = 0;
+		if (!srcpc.hasSkillEffect(SCALES_WIND_DRAGON)) {
+			srcpc.setSkillEffect(SCALES_WIND_DRAGON, integer * 1000);
+			srcpc.add_dodge(7);
+			// 更新閃避率顯示
+			srcpc.sendPackets(new S_PacketBoxIcon1(true, srcpc.get_dodge()));
+		}
+		return dmg;
+	}
+
+	public int start(final L1NpcInstance npc, final L1Character cha, final L1Magic magic, final int integer)
+			throws Exception {
+		final int dmg = 0;
+
+		return dmg;
+	}
+
+	public void start(final L1PcInstance srcpc, final Object obj) throws Exception {
+	}
+
+	public void stop(final L1Character cha) throws Exception {
+		if (cha instanceof L1PcInstance) {
+			final L1PcInstance pc = (L1PcInstance) cha;
+			pc.add_dodge(-7);
+			pc.sendPackets(new S_PacketBoxIcon1(true, pc.get_dodge()));
+		}
+	}
+}

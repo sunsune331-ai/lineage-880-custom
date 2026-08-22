@@ -1,0 +1,37 @@
+# 預設不納入任何檔案；只白名單列出可安全版本控管的修改來源。
+/*
+!/.gitignore
+!/README.md
+!/build.xml
+!/manifest.mf
+!/ServerStart.bat
+
+# 伺服器原始碼
+!/src/
+!/src/**
+
+# 僅納入可檢閱的修正 SQL／紀錄；完整傾印、舊備份與客戶端補丁一律排除。
+!/資料庫&修正歷程_工具/
+/資料庫&修正歷程_工具/*
+!/資料庫&修正歷程_工具/update_*.sql
+!/資料庫&修正歷程_工具/verify_*.sql
+!/資料庫&修正歷程_工具/grant_*.sql
+!/資料庫&修正歷程_工具/README.md
+
+# 永不納入執行檔、編譯成果、資料庫設定、玩家資料、記錄或客戶端資源。
+/config/
+/data/
+/build/
+/jar/
+/maps/
+/META-INF/
+/back/
+/chatLog/
+/loginfo/
+/update/
+*.class
+/*.jar
+/*.tmp
+/.settings/
+/.classpath
+/.project
