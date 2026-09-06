@@ -1,7 +1,8 @@
 # 天堂 8.8 Client UI Function Map
 
 最後更新：2026-09-07  
-驗證目標：32-bit LinLogin.bin，PID 24660，image base 0x00400000，module size 0x01D6E000
+最後已驗證目標：32-bit LinLogin.bin，PID 24660，image base 0x00400000，module size 0x01D6E000  
+最新 session recheck：2026-09-07 Argus attach 回報 `LinLogin.bin 未執行`；下列 heap/live object 值目前只作歷史證據，下一次 attach 後必須重新定位。
 
 本文件只記錄已沿資料流、RTTI、vtable、factory 或 live object 驗證的 UI 函式。所有 Runtime VA 都屬於本次 8.8 build；client 重開或換 build 後，heap object 位址不可沿用，程式 VA 也應先用 RVA/AOB 重新驗證。
 
