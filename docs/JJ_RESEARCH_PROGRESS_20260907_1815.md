@@ -26,4 +26,26 @@
 - Shared: 1
 - Other: 0
 
-STATUS = IN_PROGRESS_10_OF_50
+## Checkpoint 20 / 50
+
+|#|標題|URL|分類|存取|來源版本|重點流程 / 可重用方法|8.8C 驗證點|
+|---|---|---|---|---|---|---|---|
+|11|天堂私服 \| SPR-BMP互轉 工具(SPR↔BMP)|https://morosedog.gitlab.io/private-lineage-20220220-private-lineage-87/|Client|PUBLIC_FULL + COFFEE_RESOURCE_BLOCK|SPR→BMP+SFD；SFD+BMP→SPR；SFD 保存轉回所需 metadata，舊工具以 240-13/240-20 示範多 frame|Toolkit decoder 驗證 frame pixels 與 SFD-like offset/meta 是否可對 8.8 資源閉環|
+|12|天堂私服 \| ViX 工具(圖檔轉位元)|https://morosedog.gitlab.io/private-lineage-20220501-private-lineage-96/|Client|PUBLIC_FULL + COFFEE_RESOURCE_BLOCK|舊 SPR 回編要求 BMP 位深 16；ViX 用批次轉換 24/32→16-bit|8.8 decoder/encoder 需先確認 pixel format；不要沿用 16-bit 假設|
+|13|天堂私服 \| 超簡易地圖預覽 工具|https://morosedog.gitlab.io/private-lineage-20220222-private-lineage-89/|Client|PUBLIC_FULL + COFFEE_RESOURCE_BLOCK|指定 client path→地圖 inventory→preview/info→單張/全部匯出 L1J txt|若未來做 Map Browser，可沿 index-first/on-demand-preview；8.8 map format 另驗|
+|14|天堂私服 \| Lineage Map V1 工具|https://morosedog.gitlab.io/private-lineage-20220223-private-lineage-90/|Client|PUBLIC_FULL + COFFEE_RESOURCE_BLOCK|舊 client map viewer/editor 類工具，可從 client path 建 map list/preview|8.8 是否仍適用其 map/tile format、坐標與属性模型需重驗|
+|15|天堂私服 \| 地圖屬性修改 工具|https://morosedog.gitlab.io/private-lineage-20220224-private-lineage-91/|Shared|PUBLIC_FULL + COFFEE_RESOURCE_BLOCK|地圖可見像素/tiles 與 Server 可行走/屬性資料是兩層；工具用於修改 map attribute|8.8 應分 client render map 與 server collision/region/map-id semantics，雙端對照|
+|16|天堂私服 \| LiTo Map 工具|https://morosedog.gitlab.io/private-lineage-20220225-private-lineage-92/|Client|PUBLIC_FULL + COFFEE_RESOURCE_BLOCK|指定 client path→列無界擂台地圖→批次轉成天堂可用 map files|驗證 8.8 map container/variant conversion 是否仍存在，不沿用 LiTo format|
+|17|天堂私服 \| Flexible Renamer 工具(批量修改檔名)|https://morosedog.gitlab.io/private-lineage-20220502-private-lineage-97/|Client|PUBLIC_FULL + COFFEE_RESOURCE_BLOCK|大量 SPR prefix 重映射時以批次 rename 同步檔名；例 11653..→362..|Toolkit 不應靠 destructive rename 做 resolver；應以 virtual mapping/alias table 保存 source provenance|
+|18|天堂私服 \| NPC對應對話檔分析|https://morosedog.gitlab.io/private-lineage-20220226-private-lineage-93/|Shared|PUBLIC_FULL|DB npcaction normal/caotic/teleport URL 欄位→HTML basename→client dialog|8.8 驗證 DB/packet/client dialog ID，欄位名與 karma branch 只作 hypothesis|
+|19|天堂私服 \| 文字對話檔分析|https://morosedog.gitlab.io/private-lineage-20220227-private-lineage-94/|Shared|PUBLIC_FULL|舊 client dialog 為 HTML-like markup；文字/排版標籤直接影響 UI 呈現|8.8 查 dialog parser 是否仍 HTML-like、encoding/markup subset 與 resource source|
+|20|天堂私服 \| 圖片對話檔分析|https://morosedog.gitlab.io/private-lineage-20220228-private-lineage-95/|Shared|PUBLIC_FULL|HTML `<img src="#ID">` 引用 IMG；舊繁中資源實例顯示 `IDc.img` 優先、缺少則 fallback `ID.img`|8.8 需 runtime 驗證 locale variant lookup order、resource ID resolver 與 UI image cache|
+
+### Checkpoint 20 累計分類
+- Client: 15
+- Server: 0
+- Protocol: 0
+- Shared: 5
+- Other: 0
+
+STATUS = IN_PROGRESS_20_OF_50
