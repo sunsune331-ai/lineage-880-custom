@@ -169,9 +169,12 @@ Vector28 的已知元素 ABI：
 |---|---:|---|
 | 0x00FBD520 | 0x00FBD520 | clear this+0x190 icon pointer vector；逐 item dtor/delete，再重置 grid state |
 | 0x00FBC6F0 | 0x00FBC6F0 | 由 item/model pointer 配置並建立一個 icon object，append 至 this+0x190 |
+| 0x00FC4A70 | 0x00FC4A70 | `vector<InventoryItemIcon-like*>` append helper；購買新物品時由 `0x00FBC7CC` 呼叫，已觀察資料寫入 `0x00FC4BCE` |
 | 0x00FBC670 | 0x00FBC670 | 將已建立的 UI element 加入 grid |
 | 0x00FC9640 | 0x00FC9640 | 共用 XML component lookup |
 | 0x00FC8E10 | 0x00FC8E10 | 共用 named callback binder |
+
+`0x00FBC6F0 → 0x00FBC7CC → 0x00FC4A70 / writer 0x00FC4BCE` 僅證明「單一物品 icon 建立並 append」，不等同批次 rebuild 或 reorder，亦不可直接呼叫 `0x00FBC6F0` 當整理 PoC。既有文件未保存該次 exception 的完整 registers/stack；若未來需要 ABI，必須在新 session 重新做精確 capture。
 
 ## RenewalInventoryUI / InvWindow（主背包）
 

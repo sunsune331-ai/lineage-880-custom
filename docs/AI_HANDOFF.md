@@ -53,3 +53,11 @@
 - `PromoteDollUI != 主背包`；其共用 grid ABI 成果保留，但不可混入主背包角色判定。
 - 已確認 `InventoryItemIcon+0x94/+0x98` 是會被 idle layout 持續重寫的 POINT/座標 pair；`0x004C32B0`/writer `0x004C32B8` 不是 reorder producer。
 - 真正手動 reorder 仍應用一次精確 execute capture 驗證 `0x00DFB6E0 / 0x00DFC6B0` 與 `0x00DE0E40 / 0x00DFA580`，並同步比較 manager、persisted order、layout-index 與 grid icon vectors。
+
+## 2026-09-07 長聊天封存與研究節奏
+
+- 刪除舊聊天後，先讀 [`CHAT_ARCHIVE_20260907_1844.md`](CHAT_ARCHIVE_20260907_1844.md)；它是本輪聊天的去重索引，詳細證據仍以本檔、`CLIENT_UI_FUNCTION_MAP.md`、capture 文件與 JJ research 文件為準。
+- J.J. 網站研究正式基線為 `88 / 783`、剩餘 `695`；重讀不增加 completed count。
+- 後續網站研究只在使用者下達新 Goal 後開始，每批最多 10 篇，維持 article-level 完整紀錄；完成一批即更新 ledger/tracker/progress、commit、push、停止。
+- 舊聊天或舊 handoff 中的「自動連續研究／一次處理剩餘文章」已失效，不得用來啟動下一批。
+- 主 worktree 有使用者未提交修改；不得 reset、覆蓋或清理。必要時使用獨立 worktree。
