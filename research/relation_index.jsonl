@@ -1,0 +1,6 @@
+{"from":"JJ-000090","relation":"supports","to":"JJ-000089","reason":"lvpresent reuses the personal-warehouse present path while adding a level-range recipient filter","evidence_level":"research"}
+{"from":"JJ-000093","relation":"supports","to":"JJ-000092","reason":"both reuse authoritative player-location/teleport behavior; recall reverses direction by bringing targets to GM","evidence_level":"research"}
+{"from":"JJ-000095","relation":"supports","to":"JJ-000094","reason":"tospawn documents persistent spawn definitions while spawn documents temporary runtime construction from NPC templates","evidence_level":"research"}
+{"from":"JJ-000096","relation":"supports","to":"JJ-000095","reason":"summon reuses NPC template resolution but constructs an owner-bound L1SummonInstance rather than a wild temporary NPC","evidence_level":"research"}
+{"from":"JJ-000097","relation":"relates_to","to":"topic:server-state-to-client-presentation","reason":"article explicitly separates status mutation from sendPackets/broadcastPacket presentation","evidence_level":"research"}
+{"from":"JJ-000098","relation":"needs_validation","to":"validation:880-api-callsite-tracing","reason":"x64dbg current-module API reference workflow should be tested against Lin.bin/LinLogin.bin before adoption as project evidence","evidence_level":"research"}
