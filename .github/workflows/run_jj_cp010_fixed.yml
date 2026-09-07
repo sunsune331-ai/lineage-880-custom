@@ -1,0 +1,40 @@
+name: Run JJ CP010 fixed one-shot
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/run_jj_cp010_fixed.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  run-fixed:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+      - name: Execute locked CP010 payload without workflow mutation
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import textwrap
+
+          src = Path('.github/workflows/jj_cp010_once.yml').read_text(encoding='utf-8')
+          marker = '        run: |\n'
+          assert src.count(marker) == 1, f'unexpected run block count: {src.count(marker)}'
+          body = textwrap.dedent(src.split(marker, 1)[1])
+          assert body.count('git add research/article_ledger.jsonl') == 1
+          assert body.count('git add research/checkpoint_ledger.jsonl') == 1
+          assert body.count('git rm .github/workflows/jj_cp010_once.yml') == 1
+          body = body.replace('git add research/article_ledger.jsonl', 'git add -f research/article_ledger.jsonl', 1)
+          body = body.replace('git add research/checkpoint_ledger.jsonl', 'git add -f research/checkpoint_ledger.jsonl', 1)
+          body = body.replace('git rm .github/workflows/jj_cp010_once.yml\n', '', 1)
+          out = Path('/tmp/run_cp010_locked.sh')
+          out.write_text(body, encoding='utf-8', newline='\n')
+          PY
+          bash -euxo pipefail /tmp/run_cp010_locked.sh
