@@ -4,48 +4,36 @@
 
 ## Checkpoint 10 / 50
 
-本 checkpoint 新增 10 篇，均已實際取得主要正文；下載/解壓密碼若為會員區塊，僅標 `COFFEE_RESOURCE_BLOCK`，未讀區不算正文。
+已完成 10 篇：eat、PakViewer 介紹、Pakext、PakViewe、PackViewer_beta2、MTools、XML加解密、對話檔加密解密、登入器素材抽檔、Linskin4.04。
 
-|#|標題|URL|分類|存取|來源版本|重點流程 / 可重用方法|8.8C 驗證點|
-|---|---|---|---|---|---|---|---|
-|1|天堂私服 \| eat (吃檔教學)|https://morosedog.gitlab.io/private-lineage-20220204-private-lineage-71/|Client|PUBLIC_FULL|3.81C|override file → 對應邏輯資源目錄 → launcher/eat pack/update → 遊戲回驗；以 482.tbt 狀態 icon 替換示範|驗證 8.8 client 是否仍有 external override/pack ingestion、實際 precedence 與 cache invalidation|
-|2|天堂私服 \| PakViewer 介紹|https://morosedog.gitlab.io/private-lineage-20220205-private-lineage-72/|Client|PUBLIC_FULL|舊工具能力模型：IDX/PAK inventory、preview、import/export/delete、filename/content search、extension filter、sort、XML decrypt、IMG/BMP conversion|Toolkit 可採 capability matrix；8.8 僅驗證哪些格式/metadata 仍存在，不沿用舊工具假設|
-|3|天堂私服 \| Pakext 工具|https://morosedog.gitlab.io/private-lineage-20220206-private-lineage-73/|Client|PUBLIC_FULL + COFFEE_RESOURCE_BLOCK|舊工具開 IDX，對 entry extract/delete/append/select-all/sort|8.8 Browser 可先做 read-only inventory；任何 write/import 都需隔離副本驗證，不碰原 client|
-|4|天堂私服 \| PakViewe 工具|https://morosedog.gitlab.io/private-lineage-20220207-private-lineage-74/|Client|PUBLIC_FULL + COFFEE_RESOURCE_BLOCK|以 IDX 開啟 container，提供單檔 export/import/delete 與 preview/search 類能力|驗證 8.8 IDX→PAK source resolution 與 entry metadata；不假定工具支援 8.8 格式|
-|5|天堂私服 \| PackViewer_beta2 工具|https://morosedog.gitlab.io/private-lineage-20220209-private-lineage-76/|Client|PUBLIC_FULL + COFFEE_RESOURCE_BLOCK|可直接開 PAK 或 client folder，整合多種檔案瀏覽/轉換功能|8.8 Toolkit 應支援 folder-level inventory + single-container drill-down，先 read-only|
-|6|天堂私服 \| MTools 工具|https://morosedog.gitlab.io/private-lineage-20220213-private-lineage-80/|Client|PUBLIC_FULL + COFFEE_RESOURCE_BLOCK|TBT 專用瀏覽器；指定 client directory，單選或全部抽出圖檔|Item Icon path 應獨立於 SPR resolver；驗證 8.8 icon resource format/source container|
-|7|天堂私服 \| XML加解密 工具|https://morosedog.gitlab.io/private-lineage-20220214-private-lineage-81/|Client|PUBLIC_FULL + COFFEE_RESOURCE_BLOCK|舊版 XML 存在 client-side encryption check；PakViewer 抽 Tile.idx 的 polymorphList.xml→decrypt→edit→encrypt；重複加解密可能破壞內容|8.8 先判斷 XML 是否仍為 runtime source、是否有 encryption/signature gate、polymorph 等價資料是否已移到 bin/other container|
-|8|天堂私服 \| 對話檔加密解密 工具|https://morosedog.gitlab.io/private-lineage-20220216-private-lineage-83/|Shared|PUBLIC_FULL + COFFEE_RESOURCE_BLOCK|HTML 對話檔由 Text.idx 抽出；DB npc/npcaction normal_action 可對到 html basename，形成 Server DB→Client text resource bridge|8.8 驗證 `npcaction/packet/state -> dialog resource id/name -> client text resolver`，不可直接沿用表欄位名|
-|9|天堂私服 \| 登入器素材抽檔 工具|https://morosedog.gitlab.io/private-lineage-20220217-private-lineage-84/|Client|PUBLIC_FULL + COFFEE_RESOURCE_BLOCK|工具放 client folder，抽取 launcher/login UI 素材到 skin folder|8.8 驗證 LinLogin/launcher UI 素材來源與 container，不推定仍有相同 skin 格式|
-|10|天堂私服 \| Linskin4.04 工具(IMG↔BMP)|https://morosedog.gitlab.io/private-lineage-20220219-private-lineage-86/|Client|PUBLIC_FULL + COFFEE_RESOURCE_BLOCK|IMG↔BMP 轉換，作為舊 client surface/image 資源處理鏈|8.8 先 inventory `.img` 是否仍存在、decoder 與 alpha/palette/offset metadata 是否相容|
-
-### Checkpoint 10 分類
-- Client: 9
-- Server: 0
-- Protocol: 0
-- Shared: 1
-- Other: 0
+分類：Client 9 / Shared 1。
 
 ## Checkpoint 20 / 50
 
+新增 10 篇：SPR-BMP互轉、ViX、超簡易地圖預覽、Lineage Map V1、地圖屬性修改、LiTo Map、Flexible Renamer、NPC對應對話檔、文字對話檔、圖片對話檔。
+
+分類累計：Client 15 / Shared 5。
+
+## Checkpoint 30 / 50
+
 |#|標題|URL|分類|存取|來源版本|重點流程 / 可重用方法|8.8C 驗證點|
 |---|---|---|---|---|---|---|---|
-|11|天堂私服 \| SPR-BMP互轉 工具(SPR↔BMP)|https://morosedog.gitlab.io/private-lineage-20220220-private-lineage-87/|Client|PUBLIC_FULL + COFFEE_RESOURCE_BLOCK|SPR→BMP+SFD；SFD+BMP→SPR；SFD 保存轉回所需 metadata，舊工具以 240-13/240-20 示範多 frame|Toolkit decoder 驗證 frame pixels 與 SFD-like offset/meta 是否可對 8.8 資源閉環|
-|12|天堂私服 \| ViX 工具(圖檔轉位元)|https://morosedog.gitlab.io/private-lineage-20220501-private-lineage-96/|Client|PUBLIC_FULL + COFFEE_RESOURCE_BLOCK|舊 SPR 回編要求 BMP 位深 16；ViX 用批次轉換 24/32→16-bit|8.8 decoder/encoder 需先確認 pixel format；不要沿用 16-bit 假設|
-|13|天堂私服 \| 超簡易地圖預覽 工具|https://morosedog.gitlab.io/private-lineage-20220222-private-lineage-89/|Client|PUBLIC_FULL + COFFEE_RESOURCE_BLOCK|指定 client path→地圖 inventory→preview/info→單張/全部匯出 L1J txt|若未來做 Map Browser，可沿 index-first/on-demand-preview；8.8 map format 另驗|
-|14|天堂私服 \| Lineage Map V1 工具|https://morosedog.gitlab.io/private-lineage-20220223-private-lineage-90/|Client|PUBLIC_FULL + COFFEE_RESOURCE_BLOCK|舊 client map viewer/editor 類工具，可從 client path 建 map list/preview|8.8 是否仍適用其 map/tile format、坐標與属性模型需重驗|
-|15|天堂私服 \| 地圖屬性修改 工具|https://morosedog.gitlab.io/private-lineage-20220224-private-lineage-91/|Shared|PUBLIC_FULL + COFFEE_RESOURCE_BLOCK|地圖可見像素/tiles 與 Server 可行走/屬性資料是兩層；工具用於修改 map attribute|8.8 應分 client render map 與 server collision/region/map-id semantics，雙端對照|
-|16|天堂私服 \| LiTo Map 工具|https://morosedog.gitlab.io/private-lineage-20220225-private-lineage-92/|Client|PUBLIC_FULL + COFFEE_RESOURCE_BLOCK|指定 client path→列無界擂台地圖→批次轉成天堂可用 map files|驗證 8.8 map container/variant conversion 是否仍存在，不沿用 LiTo format|
-|17|天堂私服 \| Flexible Renamer 工具(批量修改檔名)|https://morosedog.gitlab.io/private-lineage-20220502-private-lineage-97/|Client|PUBLIC_FULL + COFFEE_RESOURCE_BLOCK|大量 SPR prefix 重映射時以批次 rename 同步檔名；例 11653..→362..|Toolkit 不應靠 destructive rename 做 resolver；應以 virtual mapping/alias table 保存 source provenance|
-|18|天堂私服 \| NPC對應對話檔分析|https://morosedog.gitlab.io/private-lineage-20220226-private-lineage-93/|Shared|PUBLIC_FULL|DB npcaction normal/caotic/teleport URL 欄位→HTML basename→client dialog|8.8 驗證 DB/packet/client dialog ID，欄位名與 karma branch 只作 hypothesis|
-|19|天堂私服 \| 文字對話檔分析|https://morosedog.gitlab.io/private-lineage-20220227-private-lineage-94/|Shared|PUBLIC_FULL|舊 client dialog 為 HTML-like markup；文字/排版標籤直接影響 UI 呈現|8.8 查 dialog parser 是否仍 HTML-like、encoding/markup subset 與 resource source|
-|20|天堂私服 \| 圖片對話檔分析|https://morosedog.gitlab.io/private-lineage-20220228-private-lineage-95/|Shared|PUBLIC_FULL|HTML `<img src="#ID">` 引用 IMG；舊繁中資源實例顯示 `IDc.img` 優先、缺少則 fallback `ID.img`|8.8 需 runtime 驗證 locale variant lookup order、resource ID resolver 與 UI image cache|
+|21|天堂私服 \| 點擊跳轉其他對話檔分析<Link篇>|https://morosedog.gitlab.io/private-lineage-20220503-private-lineage-98/|Client|PUBLIC_FULL|3.81C / L1J-3.80c|HTML `<a link="dialog">` 或 `<img link>` 可在 client 對話資源間跳頁；DB→npcaction→basename 找入口|8.8 驗證 link 是否完全 client-side、dialog resolver/cache 與 resource basename 規則|
+|22|天堂私服 \| 點擊跳轉其他對話檔分析<Action篇>|https://morosedog.gitlab.io/private-lineage-20220504-private-lineage-99/|Protocol|PUBLIC_FULL|3.81C / L1J-3.80c|`action` 與 `link` 不同；action 值可送入 server 行動處理，`var src` 顯示 server 提供變數|8.8 capture UI click→outbound packet→server action key→response/dialog state；確認 var data ownership|
+|23|天堂私服 \| 執行行動分析<強化魔法師篇>|https://morosedog.gitlab.io/private-lineage-20220505-private-lineage-100/|Protocol|PUBLIC_FULL|3.81C / L1J-3.80c|HTML action 值由 `C_NPCAction` 類 server path 解析，可觸發狀態/兌換/購買等行為|8.8 找等價 client action packet 與 server dispatcher，不沿用 class/path|
+|24|天堂私服 \| 執行行動分析<傳送師篇>|https://morosedog.gitlab.io/private-lineage-20220506-private-lineage-101/|Shared|PUBLIC_FULL|3.81C / L1J-3.80c|HTML `action` 對 XML `Action Name`；XML Teleport 帶 X/Y/Map/Heading/Price；`var src` 對 Data Value 位置|8.8 驗證 action→server config/DB→teleport state→client transition，確認 XML 是否仍 runtime source|
+|25|天堂私服 \| 執行行動分析<道具篇>|https://morosedog.gitlab.io/private-lineage-20220507-private-lineage-102/|Shared|PUBLIC_FULL|3.81C / L1J-3.80c|item use→server item-id branch→send dialog resource name→client HTML；說話卷軸案例|8.8 驗證 `item use packet -> item handler -> UI/dialog response -> resource resolver`|
+|26|天堂私服 \| 人物出生道具分析/修改 (一)「L1J版」|https://morosedog.gitlab.io/private-lineage-20210907-private-lineage-40/|Server|PUBLIC_FULL|L1J-3.80c|從 beginner table→搜尋 SQL literal→Beginner model→etcitem/weapon/armor→character_items→遊戲建立角色回驗|8.8 server 以同方法追 starter-item config→inventory mutation；欄位/類名重驗|
+|27|天堂私服 \| 人物出生道具分析/修改 (二)「L1J版」|https://morosedog.gitlab.io/private-lineage-20210908-private-lineage-41/|Server|PUBLIC_FULL|L1J-3.80c|逐欄追 beginner→character_items assignment，並用缺失 bless assignment 發現可能 bug|8.8 採 field-by-field provenance audit；不能假定舊 bug 仍存在|
+|28|天堂私服 \| GM指令的程式碼邏輯分析「L1J版」|https://morosedog.gitlab.io/private-lineage-20210917-private-lineage-50/|Server|PUBLIC_FULL|L1J-3.80c|commands table/class_name→L1Commands lookup→Find Usages→GMCommands dispatcher→parse command/args→execute/remember last command|8.8 建 command-dispatch graph，確認 DB-driven 或 static registry、caller/permission checks|
+|29|天堂私服 \| GM指令/一般指令分析 (Who)「L1J版」|https://morosedog.gitlab.io/private-lineage-20210919-private-lineage-52/|Protocol|PUBLIC_FULL|L1J-3.80c|GM `.who` 經 command executor；一般 `/who` 從 clientpacket `C_Who`，readS 解析 client 字串；同可見功能有兩條入口|8.8 對同一功能分 command/chat packet path；runtime capture opcode/parser/response|
+|30|天堂私服 \| GM指令分析/修改 (怪物血條)「L1J版」|https://morosedog.gitlab.io/private-lineage-20210920-private-lineage-53/|Shared|PUBLIC_FULL|L1J-3.80c|以 GM command 切換/呈現怪物血量資訊，提供從 command state 到 client-visible UI 的跨層分析入口|8.8 驗證 HP state owner、packet/update cadence 與 client bar rendering owner|
 
-### Checkpoint 20 累計分類
-- Client: 15
-- Server: 0
-- Protocol: 0
-- Shared: 5
+### Checkpoint 30 累計分類
+- Client: 16
+- Server: 3
+- Protocol: 4
+- Shared: 7
 - Other: 0
 
-STATUS = IN_PROGRESS_20_OF_50
+STATUS = IN_PROGRESS_30_OF_50
