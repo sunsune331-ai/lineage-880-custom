@@ -77,13 +77,12 @@ jobs:
                   self.assertTrue(porcelain.startswith(" M research/article_ledger.jsonl"), porcelain)
                   jj_ledger._require_clean_or_ledger_only(self.root, self.paths)
           '''
-          # Dedent only the leading blank line; method itself intentionally stays class-indented.
           method = method.replace('\n              def ', '\n    def ').replace('\n                  ', '\n        ')
           test.write_text(t.replace(marker, method + marker), encoding='utf-8')
           PY
           python3 -m unittest tests.test_jj_ledger
           python3 tools/jj_ledger.py validate
-          git add tools/jj_ledger.py tests/test_jj_ledger.py
+          git add -f tools/jj_ledger.py tests/test_jj_ledger.py
           git commit -m "fix: preserve git porcelain status columns in JJ ledger tool"
           FIX_SHA="$(git rev-parse HEAD)"
           echo "LEDGER_TOOL_FIX_SHA=$FIX_SHA"
