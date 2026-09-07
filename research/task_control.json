@@ -1,0 +1,25 @@
+{
+  "task": "JJ_SITE_RESEARCH",
+  "display_name": "JJ.全站精華",
+  "mode": "ai_first_structured_ingestion",
+  "site_total": 783,
+  "baseline_source": [
+    "research/article_ledger.jsonl",
+    "research/checkpoint_ledger.jsonl",
+    "docs/JJ_SITE_RESEARCH_TRACKER.md"
+  ],
+  "batch_size_full_articles": 10,
+  "auto_continue": false,
+  "checkpoint_every_full_articles": 10,
+  "synthesis_every_full_articles": 50,
+  "count_rule": "Only articles whose main body was actually obtained and read count as completed.",
+  "dedupe_key": "canonical_url",
+  "default_evidence_level": "research",
+  "allow_research_to_become_8_8_confirmed_without_validation": false,
+  "reread_policy": "Only reread when needs_reread=true or explicitly requested.",
+  "preserve_existing_jj_markdown": true,
+  "move_or_rename_existing_docs": false,
+  "modify_game_code": false,
+  "resume_after_context_compression_from_git": true,
+  "stop_after_batch_checkpoint": true
+}
