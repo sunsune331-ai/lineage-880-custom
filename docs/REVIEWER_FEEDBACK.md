@@ -79,4 +79,15 @@ RETURN FORMAT =
 - `user action after work =`
 - `next executable step =`
 
-完成本輪後：更新 `CODEX_STATUS.md`；跨 Goal 可重用且證據充分的函式級結論同步更新 `CLIENT_UI_FUNCTION_MAP.md`，再 push GitHub。
+## 強制同步 / 自動 push 規則
+
+1. 每一輪 Executor 工作在準備停止前，必須先更新 `docs/CODEX_STATUS.md`；若有跨 Goal 可重用的新證據，同步更新 `docs/CLIENT_UI_FUNCTION_MAP.md`。
+2. 狀態只允許在文件已寫妥後進入 `SUCCESS`、`NEED_USER_ACTION`、`BLOCKED` 或 `RECHECK`。
+3. 每輪結束時必須自動執行 `git add` → `git commit` → `git push origin main`，不得等待使用者手動提醒。
+4. commit message 必須能辨識本輪結果，例如 `executor: offline inventory prep complete`、`executor: waiting for live inventory capture`。
+5. push 成功後才視為本輪已對 Reviewer 完成回報；本機做完但未 push 不算完成。
+6. 若 push 失敗，可做有限自動重試與一次 `git pull --rebase`/衝突檢查；不得用 force push。仍失敗時把 `STATUS = BLOCKED`、錯誤原因寫入 `CODEX_STATUS.md`，保留本機 commit，等待使用者處理。
+7. heartbeat/polling 只允許用普通 PowerShell/git 檢查 `REVIEWER_FEEDBACK.md` 的 remote commit；沒有新 commit 時不得啟動 Codex 模型。只有偵測到新 Reviewer commit 才啟動一次 Executor 工作。
+8. 偵測到新 Reviewer commit 後先 `git pull`，完整讀取最新 `REVIEWER_FEEDBACK.md`，執行完成後依本節規則自動 push，再結束該次 Codex 執行。
+
+完成本輪後：更新 `CODEX_STATUS.md`；跨 Goal 可重用且證據充分的函式級結論同步更新 `CLIENT_UI_FUNCTION_MAP.md`，並依上方「強制同步 / 自動 push 規則」自動 push GitHub。
