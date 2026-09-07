@@ -2,7 +2,7 @@
 
 最後更新：2026-09-07
 
-用途：在 Codex / client 不可用時先把已知證據、session rebind、capture 順序、判定規則與結果格式固定下來。此文件**不新增逆向結論**；只整理目前 Function Map 已支持的內容，未有來源支持的 bytes / AOB / ABI 一律標成 `UNCONFIRMED`。
+用途：在 Codex / client 不可用時先把已知證據、session rebind、capture 順序、判定規則與結果格式固定下來。此文件**不新增逆向結論**；只整理目前 Function Map 已支持的內容，未有來源支持的 ABI 一律標成 `UNCONFIRMED`。
 
 ## 1. 本輪唯一目標
 
@@ -35,7 +35,7 @@
 | UI reorder commit | `0x00DFB6E0` | `0x009FB6E0` | grid vtable+0x1A0；先 call base `0x00FC2BB0`，再 call `0x00DFC6B0` | 真實拖放是否命中、`this/args/return/caller` |
 | Persisted order producer | `0x00DFC6B0` | `0x009FC6B0` | clear owner+0x16C；`0x00DF85B0` 取 current model sequence；逐 item 取 ID append | 拖放時序、before/after item-ID list |
 | Source range reorder | `0x00DE0E40` | `0x009E0E40` | 對 manager+0x54 依 index/range 分割、erase/reinsert，回傳新 index | 真實手動拖放的 source/target ABI 與 vector delta |
-| Refresh candidate | `0x00DFA580` | `0x009FA580` | `DFBFA0` / `DF9EF0` 在 `DE0E40` 後進 refresh；`DFAB70` 有 grid 時也會 call `DFA580` | 是否為該次手動 reorder 的實際 refresh/reconcile tail |
+| Reconcile/refresh | `0x00DFA580` | `0x009FA580` | desired list 找現有 index、補建、swap、建立 layout order、finalize；`DFBFA0` / `DF9EF0` 在 `DE0E40` 後會進此路徑 | 是否為該次手動 reorder 的實際 refresh/reconcile tail |
 
 ### 關聯函式（只作定位，不加 breakpoint）
 
@@ -68,18 +68,49 @@
 
 ## 5. AOB / bytes gate
 
-目前 GitHub 文件沒有保存四 anchor 的完整 expected bytes 與唯一 AOB，因此 Reviewer **不猜**。
+Function Map 已保存四 anchor 的目前-build 唯一 signature。這些 pattern 僅供**定位/驗證**；換 build 必須重新掃描，不代表可直接 patch。
 
-Live 前由 Executor 在本機 binary 完成：
+### `DFB6E0` — Grid reorder commit
 
-| Anchor | expected bytes | unique AOB | 狀態 |
-|---|---|---|---|
-| `DFB6E0` | `UNCONFIRMED` | `UNCONFIRMED` | 必須本機重驗 |
-| `DFC6B0` | `UNCONFIRMED` | `UNCONFIRMED` | 必須本機重驗 |
-| `DE0E40` | `UNCONFIRMED` | `UNCONFIRMED` | 必須本機重驗 |
-| `DFA580` | `UNCONFIRMED` | `UNCONFIRMED` | 必須本機重驗 |
+```text
+55 8B EC 83 EC 0C 89 4D FC 0F B6 45 10 50 0F B6 4D 0C
+```
 
-Gate：四個 anchor 未完成 bytes/AOB recheck 前，不設 execute capture、不要求使用者拖放。
+目前 build hit：`0x00DFB6E0`。
+
+補充：prologue 可直接看出會讀 stack 上 `[EBP+0x0C]`、`[EBP+0x10]` 的 byte-sized 值；**其語義仍為 UNCONFIRMED**，不得先命名成 source/target index。
+
+### `DFC6B0` — Grid order → item-ID producer
+
+```text
+55 8B EC 6A FF 68 ?? ?? ?? ?? 64 A1 00 00 00 00 50 83 EC 28 A1 ?? ?? ?? ?? 33 C5 50 8D 45 F4 64 A3 00 00 00 00 89 4D EC 8B 4D EC 81 C1 6C 01 00 00
+```
+
+目前 build hit：`0x00DFC6B0`。
+
+### `DE0E40` — Manager source range move/reorder
+
+```text
+55 8B EC 6A FF 68 ?? ?? ?? ?? 64 A1 00 00 00 00 50 81 EC A4 00 00 00 A1 ?? ?? ?? ?? 33 C5 50
+```
+
+目前 build hit：`0x00DE0E40`。
+
+### `DFA580` — Grid reconcile/refresh
+
+```text
+55 8B EC 6A FF 68 ?? ?? ?? ?? 64 A1 00 00 00 00 50 81 EC C4 00 00 00 56
+```
+
+目前 build hit：`0x00DFA580`。
+
+### Gate 規則
+
+1. 在 live module executable regions 掃描上述 signature。
+2. 每個 pattern 必須只命中一次。
+3. 命中 VA 必須對應預期 RVA（考慮實際 image base）。
+4. 任一 pattern 0 hit / multi-hit / bytes 不符：`STATUS = RECHECK`，不掛 breakpoint。
+5. 四個 anchor 全數通過後才進 session rebind 與 capture。
 
 ## 6. 一次性 capture 流程
 
@@ -167,7 +198,7 @@ Gate：四個 anchor 未完成 bytes/AOB recheck 前，不設 execute capture、
 目前**不能**直接寫成可呼叫 PoC，因為以下 ABI 尚未由 GitHub 現有證據確認：
 
 - `DE0E40` 的精確 `this`、source index、target index/range 參數位置。
-- `DFB6E0` 的 event/commit invocation context。
+- `DFB6E0` 的 event/commit invocation context；目前只確認 prologue 會讀兩個 byte-sized stack args。
 - `DFA580` 是否需要特定 owner/grid state 或前置條件。
 - persistence 與 source reorder 兩條 chain 的精確相對時序。
 
