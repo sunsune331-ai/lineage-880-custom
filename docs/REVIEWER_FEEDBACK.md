@@ -4,55 +4,79 @@
 
 STATUS = RECHECK
 
-GOAL = 完成 8.8 主背包手動 reorder 路徑的 runtime 驗證，取得真正 reorder entry / refresh tail，為背包整理最小 PoC 建立可執行依據。
+GOAL = 在 8.8 client 尚未啟動期間，先完成主背包 reorder runtime 驗證所需的離線準備，讓使用者回家後只需啟動 client、登入、開背包並做一次拖放即可取得關鍵證據。
 
 REVIEW BASIS =
-- 依 `CODEX_STATUS.md`，`InventoryItemIcon+0x94/+0x98` 已被 runtime 反證為 idle layout POINT pair，不再作為 reorder producer。
-- 下一個 live runtime Goal 必須在新 client session 重新驗證 singleton / heap / vector 位址與四個 execute anchor bytes；不得沿用舊 PID / heap VA。
-- 本輪只允許沿主背包 `RenewalInventoryUI / InvWindow` 路徑，不回頭追 PromoteDollUI 或已排除的 icon raw-field watch。
+- 目前 `CODEX_STATUS.md` 的唯一 live blocker 是 `LinLogin.bin` 未執行；不得因此讓 Executor 閒置等待。
+- `InventoryItemIcon+0x94/+0x98` 已被 runtime 反證為 idle layout POINT pair，不再追該 raw field。
+- live session-specific PID / heap / singleton value 不可沿用；但程式級 RVA/AOB/函式邊界、capture harness、離線 caller/callee 與 rebind 流程可先完成。
+- 主線仍固定為 `RenewalInventoryUI / InvWindow → source/order producer → reorder → refresh`。
 
-EXECUTOR ACTION =
-1. 啟動並登入 8.8 client 後，先用現有 AOB / bytes 重新驗證以下 execute anchors：
+EXECUTOR ACTION（client offline 時立即執行） =
+1. 不等待 client；先完成四個既定 execute anchor 的離線靜態 recheck 與 AOB 固化：
    - `0x00DFB6E0`
    - `0x00DFC6B0`
    - `0x00DE0E40`
    - `0x00DFA580`
-2. 重新定位本 session 的 RenewalInventoryUI、InventoryItemGrid、inventory manager 與相關 source/order vectors；session-specific heap VA 不得沿用舊值。
-3. 僅建立一次短時 execute capture，監看上述四個既定入口。
-4. Capture ready 後才要求使用者做一次手動拖放；不要在尚未 ready 時要求任何遊戲操作。
-5. 拖放前後同步保存並比較：
-   - inventory manager source/order vector
-   - persisted item-ID order（若存在）
-   - layout-index mapping
-   - grid icon vector
-6. 直接判定：
+   對每個 anchor 保存：RVA、函式範圍、預期 bytes、唯一 AOB、直接 caller/callee、已知 role、需要 runtime 補證的欄位。
+2. 建立/完善一個一次性 runtime capture harness，目標是 client live 後一鍵完成：
+   - attach `LinLogin.bin`
+   - 驗證四 anchor bytes/AOB
+   - 重新定位 RenewalInventoryUI / InventoryItemGrid / inventory manager
+   - 重新定位 manager source/order vector、persisted item-ID order、layout-index mapping、grid icon vector
+   - 僅掛四個既定 execute capture
+   - 完成後輸出 `CAPTURE_READY`，不要提前要求使用者操作。
+3. 建立 session rebind 邏輯：禁止硬編碼舊 PID / heap VA；只允許以 global slot、RTTI/vtable、AOB、已確認 object chain 重新解析 live object。
+4. 對 `DE0E40 / DFC6B0 / DFB6E0 / DFA580` 做離線直接 caller/callee 追蹤與參數 ABI 整理，僅限一層；若能從靜態證據明確確認 source index / target index / persisted-order / refresh 參數，寫入 Function Map，否則標記 UNCONFIRMED。
+5. 對已知 `DE1D40` 批次 consumer 做有限離線補強：只整理其 this / table layout / 180-entry 使用方式與直接 callers；不要再把它提升為主整理入口，除非有新的直接證據。
+6. 把 runtime capture 前後差異輸出格式固定為同一份 JSON/Markdown summary，至少包含：
+   - manager vector before/after
+   - persisted order before/after
+   - layout index before/after
+   - grid icon vector before/after
+   - 每個 execute hit 的 EIP / this / args / return / caller
+7. 建立「使用者回家後唯一操作流程」文件/提示：
+   - 開 8.8 client
+   - 登入
+   - 開主背包
+   - 等 `CAPTURE_READY`
+   - 只拖動一次指定物品
+   其餘步驟由 Executor 自動完成。
+8. client 未啟動時，不要持續用模型輪詢；允許輕量 heartbeat watcher，但 AI 工作應在本輪離線準備完成後停止，等待真正 live event。
+
+LIVE PHASE（偵測到 client live 後自動接續） =
+1. 重新驗證四 anchor bytes/AOB。
+2. 重新定位本 session 的 owner/grid/manager/vectors。
+3. 一鍵掛四個 execute capture，確認 `CAPTURE_READY` 後才要求使用者一次拖放。
+4. 拖放前後同步比較四組 order/vector state。
+5. 直接判定：
    - `DE0E40` 是否為真實手動 reorder entry
    - `DFC6B0` 在拖放前/後的角色
    - `DFB6E0` 的事件/保存角色
    - `DFA580` 是否為 reorder 後 refresh/reconcile tail
-7. 若任一候選命中，立即沿該真實 runtime 證據分析 caller/args/前後 state；不要擴大到全域掃描。
-8. 若四個 anchor 全未命中，允許只擴大一層到其直接 caller/callee，不做 heap-wide / process-wide 無界搜尋。
+6. 若任一候選命中，沿真實 runtime 證據分析 this/args/caller/前後 state；不要擴大全域搜尋。
 
 SUCCESS CRITERIA =
-- `reorder entry` 有真實 execute hit + this/args + 前後 order/vector 變化支持。
+- 離線階段先交付可重複使用的 AOB + session rebind + capture harness，讓 live 階段不再臨時查工具/位址。
+- live 階段 `reorder entry` 有真實 execute hit + this/args + 前後 order/vector 變化支持。
 - `refresh tail` 有 execute/call-chain 證據。
-- 能形成一個不靠猜位址的最小 PoC 呼叫方案。
+- 能形成不靠猜位址的最小 PoC 呼叫方案。
 
 STOP / USER ACTION =
-- 只有在 capture 已 ready 且需要一次拖放時，回報 `NEED_USER_ACTION` 並明確指定唯一操作。
+- client offline：不得把等待本身當工作；完成離線準備後停在 `NEED_USER_ACTION`。
+- 只有 capture 已 ready 且需要一次拖放時，才要求遊戲內操作。
 - 若只剩 patch / injection / runtime write 才能繼續，先停止並回報 Reviewer；未授權前不得執行。
-- 若本輪得到重大新證據，可沿證據繼續，不因時間中斷；只有重複無進展或偏離 Goal 才停止。
+- 若得到重大新證據，可沿證據繼續；只有重複無進展或偏離 Goal 才停止。
 
 RETURN FORMAT =
 - `STATUS = SUCCESS | NEED_USER_ACTION | BLOCKED | RECHECK`
-- `reorder entry =`
-- `this/args =`
-- `order/vector delta =`
-- `DFC6B0 role =`
-- `DFB6E0 role =`
-- `refresh tail =`
-- `runtime evidence =`
-- `minimal PoC =`
+- `offline prep complete =`
+- `anchor AOBs =`
+- `session rebind =`
+- `capture harness =`
+- `static ABI findings =`
+- `live blocker =`
+- `user action after work =`
 - `next executable step =`
 
 完成本輪後：更新 `CODEX_STATUS.md`；跨 Goal 可重用且證據充分的函式級結論同步更新 `CLIENT_UI_FUNCTION_MAP.md`，再 push GitHub。
