@@ -1,9 +1,9 @@
 CURRENT GOAL = 將目前長聊天的可重用資訊去重封存為 GitHub 知識，完成 commit/push 並從 origin/main 重讀驗證
-STATUS = IN_PROGRESS
-CONFIRMED = 封存採 AI-readable 固定 ID 與證據層級；不搬移或改名現有 docs；J.J. 基線維持 88/783、剩餘 695；主背包靜態與歷史 runtime 證據由 Function Map/capture 文件承載
+STATUS = SUCCESS
+CONFIRMED = CHAT_ARCHIVE_20260907_1844 已由 origin/main 重新讀取；archive blob 24,695 bytes，含 30 個 confirmed facts、12 個 research/待驗證項、16 個 open questions、8 個 next actions；J.J. 基線維持 88/783、剩餘 695
 DISPROVEN = 舊 session heap/PID 不可重用；PromoteDollUI 不是主背包；DE1D40 初始化全 0、icon+0x94 idle writer、未連結 named sort family 均不能當成已驗證手動 reorder
 CHANGED = 新增 CHAT_ARCHIVE_20260907_1844；最小更新 AI_HANDOFF、CLIENT_UI_FUNCTION_MAP 與本狀態檔；未修改 Client/Server/Database/資源與現有 docs 結構
-RUNTIME EVIDENCE = 本輪不新增 runtime 操作；整理既有 Argus/Ghidra/capture 與 research 證據，遠端可讀性尚待 push 後驗證
+RUNTIME EVIDENCE = 本輪不新增 client runtime 操作；首次 push 後 fetch 驗證 local/origin main 均為 04befe19160bc2eb3718a3edf2a88dccfbb21eaf，archive blob 1a0cefab9dd0b40d123efe6f89a8fab44382d0c2 可讀且必需 section/計數全數通過
 BLOCKER = 無
-RECHECK NEEDED = push 後必須 fetch origin/main，確認 commit 一致、archive blob 存在、可讀且計數符合
-NEXT EXECUTABLE STEP = 完成 archive → diff/check/count → commit → fetch/rebase（若需要）→ push origin main → 遠端重讀驗證
+RECHECK NEEDED = 無；未完成的 client/resource/research 問題已集中列於 archive OQ-01..OQ-16
+NEXT EXECUTABLE STEP = 等待使用者建立新 Goal；新 task 先讀 CHAT_ARCHIVE_20260907_1844、AI_HANDOFF、CODEX_STATUS、REVIEWER_FEEDBACK 與相關 Function Map
