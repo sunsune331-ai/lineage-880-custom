@@ -1,6 +1,6 @@
 # J.J.'s Blogs 全站研究追蹤（783 篇）
 
-最後更新：2026-09-07
+最後更新：2026-09-07 18:03
 
 ## 目標
 
@@ -35,17 +35,17 @@ Category 有交叉/巢狀，不能把數量直接相加當唯一文章總數。
 
 - `PUBLIC_FULL`：文章主要技術正文可完整取得；若只有下載密碼是咖啡會員鎖定，技術正文仍可標此狀態並另註 `COFFEE_RESOURCE_BLOCK`。
 - `COFFEE_FULL`：咖啡會員加密正文已實際解鎖並讀取。
-- `COFFEE_LOCKED_BY_READER`：頁面標示咖啡會員，但目前網頁 reader 無法執行 localStorage/前端解密，因此加密區塊未取得。
-- `ADVANCED_LOCKED`：頁面顯示管理員/進階或更高等級才可讀；不以標題猜正文。
-- `FLAGSHIP_LOCKED`：頁面明確顯示旗艦層級才可讀。
+- `COFFEE_LOCKED_BY_READER`：頁面標示咖啡會員，但目前 reader 無法解密該區塊。
+- `ADVANCED_LOCKED`：管理員/進階或更高等級才可讀；不以標題猜正文。
+- `FLAGSHIP_LOCKED`：旗艦層級才可讀。
 
-網站 `/support/` 已確認 2026 咖啡會員年度密碼是公開提供，且只適用咖啡會員區塊；進階/旗艦是另一套綁帳號與期限的機制。reader 本身不繼承瀏覽器 localStorage，因此目前沒有把未解密區塊誤標為 FULL。
+網站 `/support/` 已確認 2026 咖啡會員年度密碼是公開提供，但 reader 不繼承瀏覽器 localStorage；因此未解密區塊不誤標 FULL。ADVANCED/FLAGSHIP 為不同機制，遇到後只標記並跳過。
 
-## 本輪已完成的深讀範圍
+## 已完成深讀主題
 
 ### A. 天堂私服：變身 / SPR / action 主鏈
 
-已逐頁開啟並閱讀正文（`PUBLIC_FULL`，以 3.81C/L1J-3.80c 為舊版證據）：
+已逐頁讀取主要技術正文（3.81C/L1J-3.80c 舊版證據）：
 
 1. 客戶端和登入器與變身檔關係分析
 2. 變身檔與 gfxid、polyid 分析
@@ -61,74 +61,101 @@ Category 有交叉/巢狀，不能把數量直接相加當唯一文章總數。
 12. 變身檔-走路分析與修改
 13. 變身檔-攻擊分析與修改
 14. 變身檔-施法分析與修改
-15. 變身檔-僵直分析與修改
+15. 變身檔-僵直/受傷分析與修改
 16. 變身檔-撿取分析與修改
 17. 變身檔-指向指令分析與修改
+18. 變身檔-魔法方向性分析與修改
+19. GM 指令使用（人物變身）
 
-主要新確認：
-- 3.81C 測試中，未使用登入器自訂變身檔時 `list.spz` 才是實際生效來源；單改 `list.spr` 沒效果。
-- 啟用登入器自訂 morph PAK 後，未在自訂檔定義的部分不 fallback 到 client `list.spz`；這是「source precedence」問題，不只是檔案在哪裡。
-- `#5641 64=240` 這種格式證明「變身 ID」與「實際 sprite set/file prefix」可不同。
-- `spr_action` 來源是 morph/action 編碼，欄位模型包含 `spr_id / act_id / framecount / framerate`；舊版 server 用它做移動/攻擊速度異常檢查。
-- `framecount` 可由動作編碼中各段 frame 數累加；沒有 framerate 指令時舊版預設值是 24。
-- `105.clothes` 不是裝飾註記，而是額外圖層；例：Death Knight 本體 + 光刀，Ice Queen 本體 + 發光 + 風雪。
-- `106.weapon` 證明不同 client generation 的武器合成策略不同：有的 sprite 已把武器畫進 body，有的靠 weapon 指令疊合。
-- `109.effect` 更精確可理解成飛行呈現 + 命中效果，而非只限定「魔法」。
-- `8=784` 這種 action 指向會直接引用另一個 morph entry 的同 action 編碼與圖檔，不只是 SPR filename alias；舊版還觀察到 forward reference 可能崩潰，需視為 parser/order hypothesis，不得直接套 8.8。
+主要確認：
+- 3.81C 實測中，未使用登入器自訂 morph 時 `list.spz` 才是實際生效來源；單改 `list.spr` 無效。
+- 啟用登入器自訂 morph PAK 後，自訂檔未定義項目不一定 fallback 到 client 原始 `list.spz`；屬 source precedence 問題。
+- `#5641 64=240` 證明 morph ID 與實際 sprite set/file prefix 可不同。
+- `spr_action` 舊版模型包含 `spr_id / act_id / framecount / framerate`，server 用於 Move/Attack/Spell interval 類速度檢查。
+- `105.clothes` 是額外圖層；`106.weapon` 顯示不同 client generation 可能採 baked-in 或 overlay 武器；`109.effect` 可拆 projectile / impact。
+- action 可引用另一 morph entry，例如 `8=784`；因此 resolver 不應是單層 `gfxid -> filename`。
+- 單一 SPR 能顯示只證明 decode path，不證明完整 morph/action/runtime mapping。
 
-### B. 天堂私服：資源工具 / Browser 行為
+### B. 天堂私服：資源工具 / Browser / 補丁
 
-已逐頁開啟：
-- PakViewer Ver.3.0 工具 — `PUBLIC_FULL` + `COFFEE_RESOURCE_BLOCK`
-- SFDviewer 工具(圖檔座標定位) — `PUBLIC_FULL` + `COFFEE_RESOURCE_BLOCK`
-- TBT編譯器(PNG↔TBT) — `PUBLIC_FULL` + `COFFEE_RESOURCE_BLOCK`
-- LineageSpr 工具 — 正文可讀，下載解壓密碼區為咖啡會員鎖定
+已讀：
+- PakViewer Ver.3.0 — `PUBLIC_FULL + COFFEE_RESOURCE_BLOCK`
+- SFDviewer — `PUBLIC_FULL + COFFEE_RESOURCE_BLOCK`
+- TBT 編譯器(PNG↔TBT) — `PUBLIC_FULL + COFFEE_RESOURCE_BLOCK`
+- LineageSpr — 正文可讀；下載密碼區鎖定
+- L1Viewer — `PUBLIC_FULL + COFFEE_RESOURCE_BLOCK`
+- Lineage Icon v120119 — `PUBLIC_FULL + COFFEE_RESOURCE_BLOCK`
+- 客戶端 idx、pak 說明 — `PUBLIC_FULL`
+- 補丁副檔名對應說明 — `PUBLIC_FULL`
+- 補丁吃檔資料夾對應 — `PUBLIC_FULL`
 
-對 Toolkit 最重要的新證據：
-- PakViewer Ver.3.0 選任一 `*.idx` 後會載入可解析的整組 IDX；支援 All Sprite / Sprite..Sprite15 / Text / Tile、模糊搜尋、排序、右側即時 preview、縮放、圖片/動態圖/文字預覽。
-- 這直接支持我們的 Resource Browser 應採 `index-first + on-demand preview`，而不是 `export-all-to-PNG-first`。
-- SFDviewer 可同時開兩個 SFD 並做「合成」，且顯示每 frame X/Y；它證明舊版工具模型本來就把多 layer 對位當一級功能。
-- TBT 工具明確把 TBT 用在道具圖、魔法圖、人物狀態圖，支持 Item Icon Browser 與 GFX/SPR Browser 分開 resolver。
+新增 Resource Tool Matrix 證據：
+- PakViewer Ver.3.0：`index-first + search/filter + on-demand preview`；可跨 Sprite/Text/Tile，支援動態圖/文字預覽。
+- L1Viewer：檔名搜尋支援 literal/case-sensitive/regex/filter；另有文件內容全文檢索；TBT 可用 image-list；SPR 可播放、逐幀前進/後退，顯示 current/total frame。
+- Lineage Icon：TBT Query / TBT Browse / SPR Query 分離；再次支持 Item Icon Browser 與 SPR Browser 應有不同 resolver/UX。
+- SFDviewer：可同時開兩份 SFD，顯示每 frame X/Y 並做合成，支持 compositor 一級功能。
+- TBT 工具：TBT 用於道具圖、魔法圖、人物狀態圖。
+- 3.81C IDX/PAK：IDX 作 entry index，PAK 作實際資源容器；工具可由 entry 解出 SPR 多 frame。8.8 必須保留 source provenance，尤其處理 duplicate entry。
+- 3.81C override folders 顯示 icon/sprite/surf/text/tile 是不同 logical resource class；8.8 只能把這當 loader/search-root 的研究框架，不沿用固定目錄名。
 
-### C. Reverse engineering 方法層
+### C. 天堂私服：核心分析 / Debug
 
-本輪另逐頁深讀/驗證：
+新增完整正文：
+- 遊戲帳號分析/Debug (一)「L1J版」
+- 遊戲帳號分析/Debug (二)「L1J版」
+- 遊戲帳號分析/Debug (三)「L1J版」
+
+抽取出的 server trace template：
+
+`observable game action -> DB/config candidate -> SQL/table literal -> model/object fields -> Find Usages/caller -> clientpacket/service entry -> breakpoint -> evaluate predicate/owner state -> step -> outbound packet / DB mutation / visible result`
+
+其中 Debug (二)/(三) 另外示範：
+- 不必永久改設定，可在 debugger Variables 中暫改 runtime predicate 以進入特定 branch。
+- 可用 Evaluate Expression 在執行 branch 前先確認條件值，再 Step Over 觀察結果。
+- packet result code、Java path、line number、欄位名都只屬 L1J-3.80c 舊版證據，8.8 需重驗。
+
+### D. Reverse engineering 方法層
+
+已深讀/驗證：
 - Cheat Engine 第九章 Step 8：多級 pointer / Find writes / Find accesses / pointer scan
-- x64dbg 第五章：字串搜尋（含中文檢索外掛方向）
-- x64dbg 第三十四章：一步一步觀察反調試流程、辨識 API call、用行為縮小範圍
-- OllyDBG 第八章：從可見 UI/錯誤訊息推測 API（例如 GetDlgItemText）再追 call flow
+- x64dbg 第五章：字串搜尋
+- x64dbg 第三十四章：反調試流程 / API call / 行為 narrowing
+- OllyDBG 第八章：由可見 UI/錯誤訊息推測 API，再追 call flow
 
-抽取給 8.8 的方法：
-1. 先找「可觀察事件」而不是先猜函式名稱。
-2. 能從 UI 字串/API/xref 進入就先做靜態 narrowing。
-3. 對動態資料用 `what writes / what accesses` 思維找 owner/producer。
-4. 遇到多級 owner chain，不把單次 heap address 當穩定位址；解析 module/static anchor → pointer chain → object field。
-5. 最後回到 runtime breakpoint 驗證 caller、參數與 state transition。
+固定 8.8 方法：
+1. 先找可觀察事件，不先猜函式名。
+2. 字串/API/xref 先做靜態 narrowing。
+3. `what writes / what accesses` 找 producer/consumer。
+4. heap address 只算 session evidence；追 module/static anchor -> pointer chain -> object field。
+5. breakpoint 驗證 caller、參數、owner state、state transition。
 
-## 已確認的鎖定情況
+## 已確認鎖定
 
-- 天堂私服 category 最新頁至少 4 篇（Java DOM、BOSS 重生設定分析、XML 檔案清單說明、JAXB 基礎）在列表直接顯示「管理員或更高等級」；目前記為 `ADVANCED_LOCKED`，未取得正文。
-- 多個工具文章的下載解壓密碼區塊顯示「☕ 咖啡會員或更高」；reader 可讀完整工具正文但不能解密該區，記為 `PUBLIC_FULL + COFFEE_RESOURCE_BLOCK`，不誤標 `COFFEE_FULL`。
-- 尚未遇到可明確確認正文為 `FLAGSHIP_LOCKED` 的本輪目標頁；只有 `/support/` 說明存在旗艦層級。
+- 天堂私服 category 最新頁至少 4 篇（Java DOM、BOSS 重生設定分析、XML 檔案清單說明、JAXB 基礎）為 `ADVANCED_LOCKED`。
+- 多個工具文章下載/解壓密碼區塊為咖啡會員鎖定；若主要技術正文可讀，記 `PUBLIC_FULL + COFFEE_RESOURCE_BLOCK`。
+- 尚未把任何僅見 FLAGSHIP 標題的內容當正文證據。
 
-## 目前對 783 篇的完成度
+## 目前完成度
 
 - 全站數量/分類基線：完成。
-- 天堂私服 130 篇：已完成 category 結構與多頁索引抽查；變身/SPR/action/資源工具核心鏈已深讀 20+ 篇，但「130 篇逐篇全文狀態表」仍未完成。
-- x64dbg 36 / OllyDBG 16 / CE 10：方法層已開始深讀，尚未逐篇完成。
-- C / Java / MySQL / XML / Python/OpenCV / 排序演算法：分類數量與方向已建立，逐篇交叉索引待續。
+- 天堂私服 130 篇：已完成 category 結構與多頁索引抽查；morph/SPR/action、資源工具/補丁、核心 Debug 主鏈已深讀 30+ 篇級別，但「130 篇逐篇全文狀態表」仍未完成。
+- x64dbg 36 / OllyDBG 16 / CE 10：方法層已開始，尚未逐篇完成。
+- C / Java / MySQL / XML / Python/OpenCV / 排序演算法：分類數量與方向已建立，逐篇 cross-reference 待續。
 - Archives 783 篇 title-level inventory：尚未逐 79 頁全部落表。
 
 STATUS = IN_PROGRESS
 
+## 最新進度檔
+
+- `docs/JJ_RESEARCH_PROGRESS_20260907_1803.md`
+
 ## 下一批優先序
 
-1. 天堂私服 `07.工具介紹/使用` 24 篇：把每個工具對應的格式、container、preview 能力、限制整理成 Resource Tool Matrix。
-2. 天堂私服 `06.補丁介紹/說明` + `08.對話檔`：完成 IDX/PAK/Text/TBT/IMG/SPR/HTML 的 container/resource map。
-3. 天堂私服 `05.核心分析/修改` 23 篇：抽取 DB → Java → packet → client 的追蹤模板。
-4. x64dbg 36 + OllyDBG 16：建立 `search entry → breakpoint → trace → caller → owner → stable anchor` checklist。
-5. CE 10：建立 pointer/structure/what-writes 與 Argus/Ghidra 對照表。
-6. 排序演算法 7：只抽與 inventory reorder/data structure 有關的算法觀念，不把一般教學硬套遊戲。
-7. XML/MySQL/Java/C：按 Lineage cross-reference 讀，不做無關語法重複閱讀。
-8. Python/OpenCV：優先天堂私服 YOLO/GUI/threading/preview 管線與圖像辨識文章。
-9. 最後補齊 Archives 79 頁的 783 篇 title-level inventory 與閱讀狀態。
+1. 天堂私服 `07.工具介紹/使用` 尚未讀：Pakext / PakViewe / PackViewer_beta2 / MTools / XML-SPZ-HTML crypto / Linskin 等，完成 Resource Tool Matrix。
+2. 天堂私服 `05.核心分析/修改`：優先 NPC / Item / GM create / packet state，擴充 DB -> Java -> packet -> client 模板。
+3. x64dbg 36 + OllyDBG 16：建立 `search entry -> breakpoint -> trace -> caller -> owner -> stable anchor` checklist。
+4. CE 10：建立 pointer/structure/what-writes 與 Argus/Ghidra 對照表。
+5. x86 / 排序演算法：只抽能直接支援 binary/resource/inventory 的內容。
+6. XML/MySQL/Java/C：按 Lineage cross-reference 讀，不做無關語法重複閱讀。
+7. Python/OpenCV：優先天堂私服 YOLO/GUI/threading/preview/vision 驗證。
+8. 最後補齊 Archives 79 頁、783 篇 title-level inventory 與逐篇狀態。
