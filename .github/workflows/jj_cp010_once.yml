@@ -1,0 +1,126 @@
+name: JJ CP010 one-shot append
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/jj_cp010_once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  append-ledgers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+      - name: Validate baseline and append article ledger
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          article_path = Path('research/article_ledger.jsonl')
+          checkpoint_path = Path('research/checkpoint_ledger.jsonl')
+          articles = [json.loads(x) for x in article_path.read_text(encoding='utf-8').splitlines() if x.strip()]
+          checkpoints = [json.loads(x) for x in checkpoint_path.read_text(encoding='utf-8').splitlines() if x.strip()]
+          assert articles[-1]['id'] == 'JJ-000178', f"unexpected article tail: {articles[-1]['id']}"
+          assert checkpoints[-1]['checkpoint_id'] == 'JJ-AIFIRST-CP-009', f"unexpected checkpoint tail: {checkpoints[-1]['checkpoint_id']}"
+
+          new_records = [
+            {
+              "id":"JJ-000179","url":"https://morosedog.gitlab.io/python-opencv-20260108-python-opencv-numpy/","canonical_url":"https://morosedog.gitlab.io/python-opencv-20260108-python-opencv-numpy/","title":"Python | OpenCV 與 NumPy 的關係","source":"J.J.'s Blogs","published_at":"2026-01-08","domains":["Other"],"topics":["OpenCV","NumPy","ndarray","image matrix","BGR","dtype"],"versions":["OpenCV/Python 2026 article context"],"claims":["OpenCV images in Python are NumPy ndarray objects, so pixels and regions can be inspected and manipulated with array operations","image shape, dtype and channel order are basic metadata required to interpret image buffers correctly"],"technical_details":["common 8-bit image channel values range from 0 to 255","OpenCV color images use BGR channel order","img.shape is ordered as height, width, channels","article example reports numpy.ndarray, uint8 and accesses a pixel using img[y, x]","NumPy slicing/vectorized operations support fast ROI and matrix processing"],"artifacts":["numpy_demo.py"],"tools":["Python","OpenCV","NumPy"],"classes":["numpy.ndarray"],"methods":["cv2.imread","NumPy indexing/slicing"],"fields":["shape","dtype"],"packets":[],"opcodes":[],"resources":["image ndarray","pixel values"],"procedures":["load image","inspect ndarray type/shape/dtype","inspect pixels/channels","use vectorized or slice operations as needed"],"limitations":["OpenCV BGR differs from common RGB ordering","uint8 arithmetic can overflow and shape mismatch can break operations","coordinate order must distinguish x/y from row/column"],"project_relevance":["basis for decoded SPR frame buffers, ROI slicing and pixel-level validation"],"supports":["JJ-000167","JJ-000171"],"conflicts":[],"verify":["record exact dtype, channel order and alpha representation of decoded 8.8 assets rather than assuming standard BGR uint8"],"evidence_level":"research","version_status":"unverified","eight_eight_status":"unverified","read_status":"complete"
+            },
+            {
+              "id":"JJ-000180","url":"https://morosedog.gitlab.io/python-opencv-20260109-python-opencv-read-image/","canonical_url":"https://morosedog.gitlab.io/python-opencv-20260109-python-opencv-read-image/","title":"Python | OpenCV 圖片讀取與顯示","source":"J.J.'s Blogs","published_at":"2026-01-09","domains":["Other"],"topics":["OpenCV","imread","imshow","image loading","HighGUI"],"versions":["OpenCV/Python 2026 article context"],"claims":["OpenCV provides a simple load-display loop for image inspection","successful display depends on both a valid decoded image and an available GUI backend"],"technical_details":["cv2.imread loads an image into an array","cv2.imshow displays the image in a HighGUI window","cv2.waitKey keeps the window/event loop responsive and cv2.destroyAllWindows closes windows","image-loading failure should be checked before downstream processing"],"artifacts":[],"tools":["Python","OpenCV"],"classes":[],"methods":["cv2.imread","cv2.imshow","cv2.waitKey","cv2.destroyAllWindows"],"fields":[],"packets":[],"opcodes":[],"resources":["image file","decoded image array"],"procedures":["read image","validate decoded result","display image","wait for input","close GUI windows"],"limitations":["file path, codec support and GUI backend are environment-dependent","display success does not prove semantic correctness of a custom resource decoder"],"project_relevance":["minimal visual smoke-test pattern for exported SPR/item-icon frames"],"supports":["JJ-000166","JJ-000167"],"conflicts":[],"verify":["compare Toolkit-decoded pixels against a trusted decoder rather than relying only on visual display"],"evidence_level":"research","version_status":"unverified","eight_eight_status":"unverified","read_status":"complete"
+            },
+            {
+              "id":"JJ-000181","url":"https://morosedog.gitlab.io/python-opencv-20260113-python-opencv-image-information/","canonical_url":"https://morosedog.gitlab.io/python-opencv-20260113-python-opencv-image-information/","title":"Python | OpenCV 圖片屬性與資訊查詢","source":"J.J.'s Blogs","published_at":"2026-01-13","domains":["Other"],"topics":["OpenCV","image properties","shape","dtype","channels","metadata"],"versions":["OpenCV/Python 2026 article context"],"claims":["decoded image arrays expose dimensions, channel count and element type needed for later processing","array metadata should be inspected explicitly rather than inferred from filename or visual appearance"],"technical_details":["img.shape provides height/width and channel count for color images","img.dtype exposes pixel element type","image size/channel interpretation follows NumPy array conventions"],"artifacts":[],"tools":["Python","OpenCV","NumPy"],"classes":["numpy.ndarray"],"methods":["cv2.imread"],"fields":["shape","dtype","height","width","channels"],"packets":[],"opcodes":[],"resources":["decoded image array"],"procedures":["load image","inspect shape","derive dimensions/channels","inspect dtype","record properties before transformation"],"limitations":["metadata describes decoded buffer structure, not the original proprietary resource schema","grayscale/color/alpha arrays can have different shape conventions"],"project_relevance":["frame-property provenance for SPR/icon export and validation"],"supports":["JJ-000179","JJ-000180"],"conflicts":[],"verify":["record source SPR dimensions/palette/alpha separately from the exported OpenCV array representation"],"evidence_level":"research","version_status":"unverified","eight_eight_status":"unverified","read_status":"complete"
+            },
+            {
+              "id":"JJ-000182","url":"https://morosedog.gitlab.io/python-opencv-20260114-python-opencv-video-information/","canonical_url":"https://morosedog.gitlab.io/python-opencv-20260114-python-opencv-video-information/","title":"Python | OpenCV 影片屬性與資訊查詢","source":"J.J.'s Blogs","published_at":"2026-01-14","domains":["Other"],"topics":["OpenCV","VideoCapture","video properties","FPS","FourCC","frame seeking"],"versions":["OpenCV/Python 2026 article context"],"claims":["VideoCapture properties expose frame count, FPS, dimensions, codec and current position","cap.get and cap.set can inspect metadata and seek by frame where the backend supports it"],"technical_details":["basic properties include CAP_PROP_FRAME_COUNT, CAP_PROP_FPS, CAP_PROP_FRAME_WIDTH, CAP_PROP_FRAME_HEIGHT, CAP_PROP_FOURCC and CAP_PROP_POS_FRAMES","article also lists POS_MSEC, POS_AVI_RATIO, FORMAT, MODE, BRIGHTNESS, CONTRAST, SATURATION, HUE, GAIN, EXPOSURE and CONVERT_RGB","FourCC integer can be decomposed into four codec characters","video duration can be estimated as frame count divided by FPS"],"artifacts":["video_info_basic.py","video_info_codec.py"],"tools":["Python","OpenCV"],"classes":["cv2.VideoCapture"],"methods":["cv2.VideoCapture","cap.get","cap.set","cap.release"],"fields":["frame_count","fps","width","height","fourcc","frame_position"],"packets":[],"opcodes":[],"resources":["video metadata","video frames"],"procedures":["open video","query properties","decode FourCC when needed","optionally seek to frame","release capture"],"limitations":["backend or codec may report unavailable or inexact values","container-reported FPS/position is not an 8.8 resource-timing fact"],"project_relevance":["provenance metadata and frame navigation for generated review videos"],"supports":["JJ-000172","JJ-000178"],"conflicts":[],"verify":["compare reported properties against encoded output and keep validated SPR/action timing separate"],"evidence_level":"research","version_status":"unverified","eight_eight_status":"unverified","read_status":"complete"
+            },
+            {
+              "id":"JJ-000183","url":"https://morosedog.gitlab.io/python-opencv-20260131-python-opencv-text/","canonical_url":"https://morosedog.gitlab.io/python-opencv-20260131-python-opencv-text/","title":"Python | OpenCV 在圖片中加入文字標註","source":"J.J.'s Blogs","published_at":"2026-01-31","domains":["Other"],"topics":["OpenCV","putText","text annotation","Pillow","image annotation"],"versions":["OpenCV/Python 2026 article context"],"claims":["OpenCV can render diagnostic text onto images with configurable position, font, scale, color and thickness","for Chinese text the article uses Pillow because cv2.putText built-in Hershey fonts do not directly provide Chinese rendering"],"technical_details":["cv2.putText parameters include image, text, origin, fontFace, fontScale, color, thickness and lineType","cv2.LINE_AA is used for smoother text","Chinese example converts the OpenCV image to PIL Image, loads a font with ImageFont.truetype, draws with ImageDraw.text and converts back to NumPy"],"artifacts":["draw_text_basic.py","draw_text_fonts.py","draw_text_chinese.py"],"tools":["Python","OpenCV","NumPy","Pillow"],"classes":["PIL.Image","ImageFont","ImageDraw"],"methods":["cv2.putText","ImageFont.truetype","ImageDraw.text"],"fields":[],"packets":[],"opcodes":[],"resources":["image/video frames","text overlay","font file for Chinese text"],"procedures":["prepare frame","choose label position/style","draw ASCII text with OpenCV or Chinese text through Pillow","display/save derived annotated image"],"limitations":["text overlays modify pixels and must not replace raw evidence","font availability and rendering differ across environments"],"project_relevance":["derived labeling for 8.8 preview, model evaluation and diagnostic output"],"supports":["JJ-000169"],"conflicts":[],"verify":["preserve raw frames separately from annotated review copies and record font/rendering dependencies"],"evidence_level":"research","version_status":"unverified","eight_eight_status":"unverified","read_status":"complete"
+            },
+            {
+              "id":"JJ-000184","url":"https://morosedog.gitlab.io/python-opencv-20260203-python-opencv-floodfill/","canonical_url":"https://morosedog.gitlab.io/python-opencv-20260203-python-opencv-floodfill/","title":"Python | OpenCV 魔術棒填充顏色","source":"J.J.'s Blogs","published_at":"2026-02-03","domains":["Other"],"topics":["OpenCV","floodFill","magic wand","seed point","mask","color tolerance"],"versions":["OpenCV/Python 2026 article context"],"claims":["cv2.floodFill grows a region from a seed point according to color similarity and can implement magic-wand-style selection/fill","loDiff and upDiff directly control the tolerated color difference and therefore selected-region size"],"technical_details":["cv2.floodFill(image, mask, seedPoint, newVal, loDiff, upDiff, flags)","mask must be two pixels larger than the source image in both dimensions","flags include FLOODFILL_FIXED_RANGE and FLOODFILL_MASK_ONLY","article example creates a uint8 mask sized h+2 by w+2 and fills from a selected seed point"],"artifacts":["floodfill_demo.py"],"tools":["Python","OpenCV","NumPy"],"classes":[],"methods":["cv2.floodFill"],"fields":["seedPoint","loDiff","upDiff","flags"],"packets":[],"opcodes":[],"resources":["source image","flood-fill mask","selected region"],"procedures":["load image","create oversized mask","choose seed point","set color tolerance","run floodFill","inspect filled/selected region"],"limitations":["selection depends strongly on color continuity and tolerance settings","floodFill modifies image unless mask-only workflow is used"],"project_relevance":["interactive contiguous-region selection for sprite/background cleanup experiments"],"supports":["JJ-000173","JJ-000183"],"conflicts":[],"verify":["do not infer true SPR transparency from flood-filled rendered backgrounds without resource-level validation"],"evidence_level":"research","version_status":"unverified","eight_eight_status":"unverified","read_status":"complete"
+            },
+            {
+              "id":"JJ-000185","url":"https://morosedog.gitlab.io/python-opencv-20260206-python-opencv-histogram/","canonical_url":"https://morosedog.gitlab.io/python-opencv-20260206-python-opencv-histogram/","title":"Python | OpenCV 直方圖均衡化與圖片增強","source":"J.J.'s Blogs","published_at":"2026-02-06","domains":["Other"],"topics":["OpenCV","histogram equalization","CLAHE","contrast enhancement","YCrCb"],"versions":["OpenCV/Python 2026 article context"],"claims":["global histogram equalization redistributes grayscale intensity to improve overall contrast","CLAHE performs local equalization with contrast limiting and color-image enhancement should operate on a luminance channel rather than independently equalizing BGR channels"],"technical_details":["cv2.equalizeHist requires single-channel uint8 input","cv2.createCLAHE accepts clipLimit and tileGridSize","article converts color images to YCrCb, equalizes the Y channel and converts back to BGR","over-aggressive equalization can amplify noise"],"artifacts":["hist_equalize.py","hist_clahe.py","hist_equalize_color.py"],"tools":["Python","OpenCV"],"classes":["CLAHE"],"methods":["cv2.equalizeHist","cv2.createCLAHE","CLAHE.apply","cv2.cvtColor"],"fields":["clipLimit","tileGridSize"],"packets":[],"opcodes":[],"resources":["grayscale/color images","enhanced images"],"procedures":["choose global or local enhancement","convert to appropriate luminance representation","equalize intensity","convert back if needed","compare contrast/noise"],"limitations":["parameters are image-dependent and enhancement may amplify noise","presentation enhancement can distort pixel evidence"],"project_relevance":["optional derived preprocessing for dark/low-contrast runtime captures used in visual matching"],"supports":["JJ-000170"],"conflicts":[],"verify":["retain unenhanced source frames and measure whether enhancement actually improves 8.8 matching accuracy"],"evidence_level":"research","version_status":"unverified","eight_eight_status":"unverified","read_status":"complete"
+            },
+            {
+              "id":"JJ-000186","url":"https://morosedog.gitlab.io/python-opencv-20260223-python-opencv-opticalflow/","canonical_url":"https://morosedog.gitlab.io/python-opencv-20260223-python-opencv-opticalflow/","title":"Python | OpenCV 光流分析 (Optical Flow)","source":"J.J.'s Blogs","published_at":"2026-02-23","domains":["Other"],"topics":["OpenCV","optical flow","Lucas-Kanade","Farneback","motion analysis"],"versions":["OpenCV/Python 2026 article context"],"claims":["Lucas-Kanade tracks sparse selected features while Farneback estimates dense motion across the frame","optical flow is useful for motion detection, tracking and stabilization but represents pixel motion rather than semantic identity"],"technical_details":["cv2.goodFeaturesToTrack selects initial corners","cv2.calcOpticalFlowPyrLK returns new point positions, status and error","cv2.calcOpticalFlowFarneback computes dense flow","cv2.cartToPolar converts x/y flow components to magnitude and angle"],"artifacts":[],"tools":["Python","OpenCV"],"classes":[],"methods":["cv2.goodFeaturesToTrack","cv2.calcOpticalFlowPyrLK","cv2.calcOpticalFlowFarneback","cv2.cartToPolar"],"fields":[],"packets":[],"opcodes":[],"resources":["consecutive grayscale video frames","feature points","dense flow field"],"procedures":["convert frames to grayscale","initialize features or dense flow","compute inter-frame movement","filter successful sparse tracks or map dense magnitude/direction","visualize/analyze motion"],"limitations":["illumination changes, occlusion, blur and frame cadence affect flow","flow does not prove semantic object identity"],"project_relevance":["motion-consistency validation for runtime sprite/animation review"],"supports":["JJ-000154","JJ-000156"],"conflicts":[],"verify":["benchmark on actual 8.8 captures before treating flow as a stable signal"],"evidence_level":"research","version_status":"unverified","eight_eight_status":"unverified","read_status":"complete"
+            },
+            {
+              "id":"JJ-000187","url":"https://morosedog.gitlab.io/python-opencv-20260224-python-opencv-mouse-keyboard/","canonical_url":"https://morosedog.gitlab.io/python-opencv-20260224-python-opencv-mouse-keyboard/","title":"Python | OpenCV 滑鼠與鍵盤事件互動","source":"J.J.'s Blogs","published_at":"2026-02-24","domains":["Other"],"topics":["OpenCV","mouse interaction","keyboard interaction","HighGUI","ROI"],"versions":["OpenCV/Python 2026 article context"],"claims":["mouse callbacks plus waitKey polling provide event-driven interaction in OpenCV windows","examples use mouse selection for coordinates/ROIs and keyboard input for display transforms and command control"],"technical_details":["cv2.setMouseCallback registers a window callback","callback receives event, x, y, flags and param","cv2.waitKey reads keyboard input in the GUI loop","examples draw points/lines, select a rectangle for mosaic processing and adjust brightness/contrast with keys"],"artifacts":[],"tools":["Python","OpenCV"],"classes":[],"methods":["cv2.setMouseCallback","cv2.waitKey"],"fields":[],"packets":[],"opcodes":[],"resources":["image display","ROI","keyboard/mouse events"],"procedures":["create/select OpenCV window","register mouse callback","process mouse coordinates/drag events","poll cv2.waitKey","apply requested display/ROI operation"],"limitations":["key codes, window focus and event behavior can differ by platform/backend","UI interaction does not establish resource identity"],"project_relevance":["manual ROI selection and reviewer controls for 8.8 visual tooling"],"supports":["JJ-000165"],"conflicts":[],"verify":["test key/mouse behavior on the actual target GUI backend"],"evidence_level":"research","version_status":"unverified","eight_eight_status":"unverified","read_status":"complete"
+            },
+            {
+              "id":"JJ-000188","url":"https://morosedog.gitlab.io/python-opencv-20260225-python-opencv-image-video-draw/","canonical_url":"https://morosedog.gitlab.io/python-opencv-20260225-python-opencv-image-video-draw/","title":"Python | OpenCV 圖片與影片即時標記與繪圖","source":"J.J.'s Blogs","published_at":"2026-02-25","domains":["Other"],"topics":["OpenCV","mouse interaction","rectangle","image annotation","video annotation","realtime drawing"],"versions":["OpenCV/Python 2026 article context"],"claims":["article combines mouse callbacks with rectangle drawing for dynamic annotation on still images and live video","interactive event state can be integrated into the display/playback loop to select and visualize regions"],"technical_details":["cv2.setMouseCallback attaches a callback to an OpenCV HighGUI window","cv2.rectangle is used to render selected regions","examples maintain mouse press/move/release state for image and video drawing"],"artifacts":[],"tools":["Python","OpenCV"],"classes":[],"methods":["cv2.setMouseCallback","cv2.rectangle"],"fields":[],"packets":[],"opcodes":[],"resources":["image/video frames","mouse-selected ROI"],"procedures":["create display window","register mouse callback","track drag state","draw rectangle/overlay","refresh image or video frame"],"limitations":["HighGUI mouse behavior depends on GUI backend/window focus","drawn overlays are derived presentation and should not replace raw evidence"],"project_relevance":["interactive ROI marking for 8.8 review/preview tooling"],"supports":["JJ-000154","JJ-000165"],"conflicts":[],"verify":["preserve raw frames beside annotated copies and test callback behavior in the actual Toolkit environment"],"evidence_level":"research","version_status":"unverified","eight_eight_status":"unverified","read_status":"complete"
+            }
+          ]
+
+          existing_ids = {a['id'] for a in articles}
+          existing_urls = {a.get('canonical_url') for a in articles}
+          expected_ids = [f'JJ-{i:06d}' for i in range(179, 189)]
+          assert [r['id'] for r in new_records] == expected_ids
+          assert len({r['canonical_url'] for r in new_records}) == 10
+          assert not (set(expected_ids) & existing_ids), 'one or more new IDs already exist'
+          dup_urls = [r['canonical_url'] for r in new_records if r['canonical_url'] in existing_urls]
+          assert not dup_urls, f'duplicate canonical URLs: {dup_urls}'
+          assert all(r['read_status'] == 'complete' for r in new_records)
+          assert all(r['evidence_level'] == 'research' and r['version_status'] == 'unverified' and r['eight_eight_status'] == 'unverified' for r in new_records)
+
+          with article_path.open('a', encoding='utf-8', newline='\n') as f:
+              for r in new_records:
+                  f.write(json.dumps(r, ensure_ascii=False, separators=(',', ':')) + '\n')
+          PY
+
+          git config user.name 'sunsune331-ai'
+          git config user.email 'sunsune331@gmail.com'
+          git add research/article_ledger.jsonl
+          git commit -m 'JJ AI-first: add articles JJ-000179 through JJ-000188'
+          ARTICLE_SHA="$(git rev-parse HEAD)"
+          export ARTICLE_SHA
+
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          cp_path = Path('research/checkpoint_ledger.jsonl')
+          cps = [json.loads(x) for x in cp_path.read_text(encoding='utf-8').splitlines() if x.strip()]
+          assert cps[-1]['checkpoint_id'] == 'JJ-AIFIRST-CP-009'
+          cp = {
+            "checkpoint_id":"JJ-AIFIRST-CP-010",
+            "article_start_id":"JJ-000179",
+            "article_end_id":"JJ-000188",
+            "completed_in_batch":10,
+            "cumulative_completed":188,
+            "total_articles":783,
+            "remaining":595,
+            "classification_counts":{"Client":0,"Server":0,"Protocol":0,"Shared":0,"Other":10},
+            "incomplete":0,
+            "inaccessible":0,
+            "duplicate_canonical_url":0,
+            "duplicate_article_id":0,
+            "timestamp":"2026-09-08T01:32:19+08:00",
+            "commit_sha":os.environ['ARTICLE_SHA'],
+            "commit_sha_scope":"article_ledger commit",
+            "notes":[
+              "JJ-000179 through JJ-000188 are new completed article records from full bodies already acquired before this checkpoint",
+              "no new J.J. article search was performed for this batch; only the previously established candidate set was ingested",
+              "all website evidence remains research/unverified for 8.8",
+              "stop after CP-010 per user instruction"
+            ]
+          }
+          with cp_path.open('a', encoding='utf-8', newline='\n') as f:
+              f.write(json.dumps(cp, ensure_ascii=False, separators=(',', ':')) + '\n')
+          PY
+
+          git add research/checkpoint_ledger.jsonl
+          git rm .github/workflows/jj_cp010_once.yml
+          git commit -m 'JJ AI-first CP-010 checkpoint'
+          git push origin HEAD:main
