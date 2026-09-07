@@ -1,0 +1,77 @@
+name: JJ acceptance runner
+
+on:
+  push:
+    branches:
+      - codex/jj-ledger-tools
+    paths:
+      - .github/workflows/jj_acceptance_runner.yml
+
+permissions:
+  contents: write
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout staging branch
+        uses: actions/checkout@v4
+        with:
+          ref: codex/jj-ledger-tools
+          fetch-depth: 0
+
+      - name: Preserve staged incoming batches
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp incoming/jj_cp011_articles.jsonl /tmp/jj_cp011_articles.jsonl
+          cp incoming/jj_cp011_checkpoint.jsonl /tmp/jj_cp011_checkpoint.jsonl
+          cp incoming/jj_cp012_articles.jsonl /tmp/jj_cp012_articles.jsonl
+          cp incoming/jj_cp012_checkpoint.jsonl /tmp/jj_cp012_checkpoint.jsonl
+
+      - name: Switch to locked main baseline
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git checkout -B main origin/main
+          git branch --set-upstream-to=origin/main main
+          test "$(git rev-parse HEAD)" = "cbe2aab41a9574c0e696998c65b00bee1da90739"
+          git config user.name "JJ Ledger Runner"
+          git config user.email "jj-ledger-runner@users.noreply.github.com"
+
+      - name: Baseline tests and validation
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m unittest tests.test_jj_ledger
+          python3 tools/jj_ledger.py validate
+
+      - name: CP-011 dry-run append validate commit push
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/jj_ledger.py append --articles /tmp/jj_cp011_articles.jsonl --checkpoint /tmp/jj_cp011_checkpoint.jsonl --dry-run
+          python3 tools/jj_ledger.py append --articles /tmp/jj_cp011_articles.jsonl --checkpoint /tmp/jj_cp011_checkpoint.jsonl
+          python3 tools/jj_ledger.py validate
+          CP011_SHA="$(python3 tools/jj_ledger.py commit --message 'research: append JJ AI-first batch 011')"
+          echo "CP011_COMMIT_SHA=$CP011_SHA"
+          python3 tools/jj_ledger.py push
+          git fetch origin main
+          test "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)"
+
+      - name: CP-012 dry-run append validate commit push
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tools/jj_ledger.py append --articles /tmp/jj_cp012_articles.jsonl --checkpoint /tmp/jj_cp012_checkpoint.jsonl --dry-run
+          python3 tools/jj_ledger.py append --articles /tmp/jj_cp012_articles.jsonl --checkpoint /tmp/jj_cp012_checkpoint.jsonl
+          python3 tools/jj_ledger.py validate
+          CP012_SHA="$(python3 tools/jj_ledger.py commit --message 'research: append JJ AI-first batch 012')"
+          echo "CP012_COMMIT_SHA=$CP012_SHA"
+          python3 tools/jj_ledger.py push
+          git fetch origin main
+          test "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)"
+          python3 tools/jj_ledger.py validate
+          test -z "$(git status --porcelain)"
+          echo "JJ_ACCEPTANCE_COMPLETE"
