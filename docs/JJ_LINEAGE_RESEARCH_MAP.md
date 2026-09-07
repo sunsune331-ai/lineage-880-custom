@@ -1,267 +1,367 @@
 # J.J.'s Blogs 天堂私服研究地圖（3.81C → 8.8C 驗證導向）
 
-最後整理：2026-09-07 18:03
+最後整理：2026-09-07 18:15
 
-> 原則：J.J. 的 3.81C/L1J-3.80c 內容只作「舊版來源證據」。任何位址、載入優先序、action 編號、資料結構或 parser 行為都不得直接宣告為 8.8C 事實；8.8 必須用自己的 resource、Ghidra/Argus/runtime evidence 重驗。
+> J.J. 的 3.81C / L1J-3.80c 文章是 `research evidence`。位址、class、欄位、packet code、action ID、resource precedence、parser 行為都不能直接宣告為 8.8C 事實。8.8 必須以自身 source/resource、Ghidra/Argus、packet/runtime evidence 重驗。
 
-## 1. 固定研究鏈
+## 1. Evidence labels
 
-`遊戲可見行為 → DB/設定候選 → server source → packet/state → client owner → resource ID → IDX/PAK entry → decoder/compositor → 遊戲回驗`
+- `JJ_381_DIRECT`：舊版正文直接證據。
+- `JJ_METHOD`：跨版本可重用研究方法。
+- `HYP_880`：舊版證據導出的 8.8 可驗證假設。
+- `STATIC_880`：8.8 source/binary/resource 靜態證據。
+- `RUNTIME_880`：8.8 runtime/packet 直接證據。
+- `CONFIRMED_880`：8.8 多證據閉環後才使用。
 
-逆向側固定使用：
+任何 `JJ_381_DIRECT` 不得自動升格 `CONFIRMED_880`。
 
-`string/API/xref narrowing → breakpoint → what writes/accesses → caller chain → stable module/static anchor → runtime state transition`
+## 2. 固定跨層研究鏈
 
-## 2. 3.81C morph source precedence：直接證據
+```text
+observable game/UI event
+ -> DB/config/resource candidate
+ -> server model/owner/handler
+ -> packet/state transition
+ -> client owner/resolver
+ -> resource ID/name
+ -> IDX/PAK/other entry
+ -> decode/composite/render
+ -> runtime visual/gameplay verification
+```
 
-**來源版本：J.J. 3.81C；8.8 狀態：HYP_880。**
+逆向側：
 
-J.J. 實測：未使用登入器自訂變身檔時，client `Text.pak` 中真正影響變身的是 `list.spz`，單改 `list.spr` 沒效果；啟用登入器打包的自訂 morph PAK 後，自訂檔未定義項目不一定 fallback 到 client 原始 `list.spz`。
+```text
+string/API/xref narrowing
+ -> breakpoint
+ -> what writes / what accesses
+ -> caller chain / owner
+ -> module/static anchor or rebind path
+ -> controlled state transition
+ -> evidence closure
+```
 
-### 對 8.8 的直接影響
+## 3. Morph/GFX/Sprite resolver
 
-不要只問「morph/list 在哪」，要驗證：
+### JJ_381_DIRECT
 
-`Lin.bin / LinLogin.bin / launcher → open 哪些 morph/list/bin/container → 載入順序 → duplicate ID precedence → missing-entry fallback`
-
-建議用 resource open/read breakpoint + 單次變身事件建立 runtime trace；任何 controlled duplicate/fallback 測試只能在隔離副本進行。
-
-## 3. GFX/poly/morph ID 與 sprite set ID 必須分層
-
-**來源版本：3.81C；8.8 mapping 未確認。**
-
-J.J. 的 `#5641 64=240` 例子證明變身 ID 可以解析到另一個 sprite set/file prefix。因此 Toolkit resolver 應為：
-
-`server/client identifier → morph mapping → resolved sprite set → action/variant/direction → SPR entry`
-
-`gfxid → gfxid-action.spr` 只能作 fast path，不能作唯一規則。
-
-## 4. SPR frame 不是完整動畫
-
-**來源版本：3.81C；8.8 encoding 待驗證。**
-
-舊版動畫模型包含：SPR pixels、SFD X/Y offsets、morph action frame sequence、timing、framerate multiplier、overlay/weapon/effect layers。
-
-所以 Resource Browser 應區分：
-- Raw SPR preview：單檔 frames。
-- Game-faithful preview：action sequence + timing + layers + offsets + direction/variant。
-
-## 5. spr_action：舊版 server-side timing evidence
-
-**來源版本：L1J-3.80c/3.81C；8.8 未確認。**
-
-舊版流程：
-
-`morph action encoding → spr_action.exe → spr_action.sql → DB spr_action`
-
-欄位模型：`spr_id / act_id / framecount / framerate`。J.J. 顯示舊版 server 用它判斷移動/攻擊是否快於合法動畫時間；action encoding 可累加 frame count，未指定時舊版 framerate 預設為 24。
+舊版證據顯示：
+- morph ID 不必等於實際 SPR prefix，例如 `#5641 64=240`。
+- client 原生 morph source 與 launcher 自訂 morph PAK 有 precedence/fallback 行為。
+- action 可 local encode，也可 reference 另一 morph entry。
+- SPR pixels/frames 本身不等於完整 animation semantics。
+- timing、direction、weapon/effect/overlay、SFD offsets 可能共同決定遊戲畫面。
 
 ### HYP_880
 
-搜尋 8.8 server 是否仍有 animation timing table/cache、movement/attack speed check，以及它是否能與 client action duration 閉環。若成立，這會成為 client resource ↔ server gameplay timing 的交叉證據。
+8.8 resolver 應按：
 
-## 6. 組合圖層：舊版直接證實
+```text
+server/client visible identifier
+ -> 8.8 morph/list/bin mapping
+ -> optional remap / resolved sprite set
+ -> action local/reference
+ -> direction/variant
+ -> SPR/resource entry
+ -> timing/events/layers/offsets
+```
 
-**來源版本：3.81C；8.8 layer encoding 未確認。**
+`gfxid -> gfxid-action.spr` 只能是 fast path。
 
-`105.clothes` 實例包含 Death Knight body + 光刀、Ice Queen body + 發光 + 風雪。SFDviewer 又能同時開兩個 SFD、顯示每 frame X/Y 並合成。
+## 4. Animation timing 與 server interval 分離
 
-因此 Toolkit compositor 應預留：base layer、N overlays、frame/direction synchronization、per-layer offsets、weapon/effect layer。這能解釋「抽出的 SPR 缺武器/特效，但遊戲畫面完整」。
+舊 `spr_action` 模型含 `spr_id / act_id / framecount / framerate`，並被 server 用於 Move/Attack/Spell interval 類檢查。這提供資料模型，但不是 8.8 timing fact。
 
-## 7. Weapon generation difference
+8.8 要分：
+- visual frame sequence
+- nominal client animation duration
+- event/trigger frame
+- server authoritative action interval
+- optional framerate/parser state
 
-**來源版本：3.81C 教學比較不同 client generation。**
+需要同步 client animation capture + server/packet interval 才能確認。
 
-J.J. 指出某些版本 sprite 已把武器畫入 body，另一些靠 `106.weapon` 合成。因此 8.8 必須實測，不得預設。
+## 5. Composite layers
 
-驗證：選一個確定持武器外觀，比對 body pixels；改變 weapon state 時追 resource lookup / owner / render layer 是否新增資源。
+舊 `105.clothes`、`106.weapon`、`109.effect` 與 SFDviewer 證明舊 client 可存在 body + overlay/weapon/projectile/impact 等多 layer；較高版本也可能把武器 baked into body。
 
-## 8. Effect 是 presentation pipeline
+8.8 Browser compositor 預留：
+- base body
+- N overlays
+- optional weapon layer
+- projectile/impact phase
+- per-layer offsets
+- frame/direction synchronization
 
-**來源版本：3.81C。**
+但只有 runtime/resource evidence 確認後才啟用某 layer。
 
-`109.effect` 可描述飛行呈現 + 命中效果，不宜只理解為「魔法」。8.8 schema 建議先用中性欄位：`presentation/effect layer → projectile? → impact? → timing/target semantics?`，再由 runtime 分類。
+## 6. Resource Browser architecture
 
-## 9. Action reference / alias
+多篇舊工具文一致支持：
 
-**來源版本：3.81C；8.8 parser/order 完全未驗證。**
-
-`8=784` 類格式表示某 morph action 可引用另一 morph entry 的同 action。舊版另觀察到 forward reference/order 可能造成 crash。
-
-對 8.8 的價值只有兩個可驗證假設：
-- action table 可能有 alias/reference path，而非全部 inline。
-- resolver 可能先建 ID table 再 resolve，或依序 resolve。
-
-不得把舊版「必須放前面」直接套到 8.8。
-
-## 10. PakViewer Ver.3.0：Browser 架構證據
-
-**來源：J.J. PakViewer Ver.3.0 工具文章。**
-
-文章描述：任選 IDX 後載入整組可解析 IDX；支援 All Sprite / Sprite..Sprite15 / Text / Tile、模糊搜尋、排序；選中 entry 後右側即時 preview；支援圖片、動態圖、文字與縮放。
-
-### Toolkit 結論
-
-主要互動路徑應為：
-
-`IDX inventory cache → virtual entry list → search/filter → click → decode one entry → preview cache`
+```text
+container/index inventory
+ -> search/filter/sort
+ -> select one entry
+ -> on-demand decode/preview
+ -> optional frame play/step
+ -> cache
+```
 
 而不是：
 
-`enumerate → export every SPR → hundreds of PNG → browser`
+`export all SPR/TBT/IMG to PNG first`。
 
-這與 8.8 既有量測「manifest/index 很快、SPR export 才是瓶頸」相符，但這裡是獨立的舊工具設計證據。
+### 工具證據
 
-## 11. Item Icon：獨立 resolver
+- PakViewer Ver.3.0：跨 Sprite/Text/Tile inventory、搜尋、排序、on-demand preview。
+- L1Viewer：literal/case-sensitive/regex/filter、內容全文檢索、TBT image-list、SPR play/step/current-total frame。
+- Lineage Icon / MTools：TBT query/browse 與 SPR query 是不同任務。
+- Pakext / PakViewe / PackViewer_beta2：IDX/PAK inventory、extract/import/delete 等舊 capability；Toolkit 目前只取 read-only architecture 方法。
+- SFDviewer：frame X/Y 與兩層合成。
+- SPR↔BMP/SFD：frame pixels 與 offset/meta 需成套處理。
 
-**來源版本：3.81C TBT/物品教學；8.8 mapping 待驗證。**
+## 7. Source provenance 是一級欄位
 
-舊版 TBT 用於道具圖、魔法圖、人物狀態圖；物品 `invgfx` 對應 icon resource。
+8.8 已知存在多組 Sprite IDX/PAK 與 duplicate source，因此 Browser entry 至少保存：
 
-8.8 固定驗證鏈：
-
-`DB invgfx → server getter → packet field → client icon ID → resource resolver → TBT/other icon entry → preview`
-
-Item Browser 與 Monster GFX Browser 應是兩個 resolver，共用 container/index/cache infrastructure。
-
-## 12. Reverse engineering checklist
-
-由 x64dbg / OllyDBG / Cheat Engine 文章抽出的跨版本方法：
-
-1. 從 UI/錯誤/狀態字串或預期 API/xref 縮小靜態範圍。
-2. 重現單一遊戲事件。
-3. `what writes` 找 producer，`what accesses` 找 consumer/read path。
-4. 記 caller stack、register/arguments、owner pointer。
-5. heap address 只算本 session evidence；追 module/static anchor 或 constructor/global owner。
-6. 多級 pointer chain 逐層驗證，不因 pointer scan 命中就直接認定。
-7. 回 runtime 驗證 state transition。
-
-適合 8.8：current gfx/morph owner、selected target/NPC object、item icon ID、resource manager/index entry、animation/action state、renderer layer list。
-
-## 13. Evidence labels
-
-- `JJ_381_DIRECT`：J.J. 舊版正文直接證據。
-- `JJ_METHOD`：跨版本可重用方法。
-- `HYP_880`：由舊版導出的 8.8 可驗證假設。
-- `STATIC_880`：8.8 binary/resource 靜態證據。
-- `RUNTIME_880`：8.8 runtime 直接證據。
-- `CONFIRMED_880`：8.8 證據閉環後才使用。
-
-任何 `JJ_381_DIRECT` 都不能自動升格成 `CONFIRMED_880`。
-
-## 14. L1Viewer：搜尋 + 播放 + 逐幀的 Browser interaction model
-
-**來源：J.J. `L1Viewer 工具`；狀態：PUBLIC_FULL + COFFEE_RESOURCE_BLOCK。**
-
-來源事實：
-- 選取 client directory 後建立文件列表。
-- 名稱搜尋支援所有單詞匹配、大小寫區分、regular expression、previous/next、filter。
-- 另有文件內容全文檢索。
-- TBT 可切成 image-file list。
-- SPR 可播放，並可逐幀前進/後退；介面顯示 current frame / total frames。
-
-### HYP_880 / Toolkit 驗證
-
-Resource Browser 的交互面應分成：
-
-`inventory metadata search`
-`+ format filter`
-`+ text-content search`
-`+ on-demand preview`
-`+ SPR step/play`
-
-8.8 是否能對全部 IDX entry 直接做到 regex/full-text 搜尋仍需量測；舊工具功能只證明 UX/架構可行，不是 8.8 效能證據。
-
-## 15. Lineage Icon：TBT 與 SPR 是不同工作流
-
-**來源：J.J. `Lineage Icon v120119 工具`；狀態：PUBLIC_FULL + COFFEE_RESOURCE_BLOCK。**
-
-來源事實：工具主要分為 `TBT查詢 / TBT瀏覽 / SPR查詢`。TBT 可依 ID 查詢、瀏覽與匯出；SPR 查詢則要求指定 client directory。
-
-### Toolkit 影響
-
-這再一次支持：
-
-- `Item Icon Browser`：item/invgfx → icon resolver → TBT/other icon entry。
-- `Sprite Browser`：gfx/morph → mapping/action → SPR entry。
-
-兩者可共用 container/index/cache infrastructure，但 resolver、搜尋欄位與驗收條件應分離。
-
-## 16. IDX / PAK：source provenance 必須是一級欄位
-
-**來源版本：3.81C；8.8 mapping/precedence 未確認。**
-
-`客戶端idx、pak說明`把 IDX 當 entry index，PAK 當實際資源容器；例子顯示 IDX 可看到 `10306-24.spr` 這類 entry 名，工具可由對應 PAK 解碼成多 frame。
-
-### 8.8 直接設計要求
-
-由於 8.8 已知存在多組 Sprite IDX/PAK 且有 duplicate source，Browser row 應保存：
-
-- requested resource key
+- requested logical ID/key
 - entry name
 - source IDX
-- source PAK
+- source PAK/container
 - duplicate candidates
-- selected/precedence source
+- precedence/selected source
 - decode status
+- mapping/reference chain
 
-只保存裸 GFX ID 會失去 debug loader precedence 所需證據。
+不能只保存裸 GFX ID。
 
-## 17. 補丁資料夾只作 logical resource class，不作 8.8 固定路徑
+## 8. Item Icon 與 Sprite resolver 分開
 
-**來源版本：3.81C。**
+舊 TBT 工具與 `invgfx` 教學反覆支持 icon 與 sprite 是不同 resource task。
 
-舊版 override root 分成：`icon / sprite / Surf / text / Tile`，各自對應 TBT/ICO、SPR、IMG、HTML/TBL/list、XML/TIL 等類型。
+### 8.8 驗證鏈
 
-### JJ_METHOD
+```text
+DB invgfx
+ -> server item model/getter
+ -> packet/icon field
+ -> client icon ID
+ -> icon resolver
+ -> TBT/other icon resource
+ -> preview
+```
 
-保留的是：
+與：
 
-`format → logical resource class → search root / packed fallback / override precedence`
+```text
+gfx/morph identifier
+ -> mapping/action
+ -> SPR/resource resolver
+```
+
+兩者共用 index/cache infrastructure，但 resolver、搜尋欄位、驗收條件分離。
+
+## 9. Logical resource classes / override
+
+3.81C override folders `icon / sprite / Surf / text / Tile` 只保留成研究抽象：
+
+`format -> logical resource class -> candidate search roots -> loose override? -> packed fallback? -> precedence`。
+
+8.8 要追 `Lin.bin / LinLogin.bin` 實際 file-open/read path，不能直接沿用舊目錄名。
+
+## 10. Dialog：Client link 與 Server action 分界
+
+### JJ_381_DIRECT
+
+舊 HTML-like dialog 中：
+- `link` 可做 client resource/page 跳轉。
+- `action` 可進入 server-side action handling。
+- `var src` 可顯示 server 注入資料。
+- `<img src="#ID">` 走 client image resource resolver。
 
 ### HYP_880
 
-對 8.8 應追 `Lin.bin / LinLogin.bin` 實際 file-open/read calls，建立：
-
-`resource class → candidate roots → loose override? → packed source? → duplicate precedence → fallback`
-
-不得直接假設 8.8 仍讀 3.81C 同名資料夾。
-
-## 18. Server Debug：DB → object → caller → predicate → packet/state
-
-**來源：`遊戲帳號分析/Debug (一)(二)(三)`；來源版本 L1J-3.80c。**
-
-三篇連續文章形成完整方法：
+8.8 應 capture：
 
 ```text
-observable game action
-  → DB table / config candidate
-  → search SQL/table literal
-  → model/object fields
-  → Find Usages / caller
-  → clientpacket / service entry
-  → breakpoint before condition
-  → Evaluate Expression / owner state
-  → Step Over / Step Into / Step Out
-  → outbound packet / DB mutation / visible result
+open dialog
+ -> resource/template ID
+ -> click link/action
+ -> 是否 outbound packet?
+ -> action key/arguments
+ -> server dispatcher
+ -> response/state
+ -> next client resource/render
 ```
 
-其中還有兩個可重用技巧：
-- Debugger 中暫改 runtime variable 以強制走特定 branch，不必永久改 config。
-- 在真正執行 branch 前用 Evaluate Expression 先驗證 predicate，再觀察 packet/result/state transition。
+這能把純 Client UI navigation 與 Protocol/Server behavior 分開。
 
-### 8.8 套用規則
+## 11. Dialog / NPC / XML / Item-use 的 Shared bridge
 
-可直接沿用的是研究方法，不是 Java path、line number、packet result code、DB 欄位名或 branch order。
+舊版案例提供：
+- DB `npcaction` 類欄位 -> HTML basename。
+- Teleporter：HTML action -> XML `Action Name` -> X/Y/Map/Heading/Price。
+- item use -> server item-id handler -> dialog response resource。
 
-適用於 8.8：NPC spawn/create、item create/add、gfx/invgfx 傳遞、login/selection state、skill effect、resource request 等任何能從可觀察事件回追 server chain 的問題。
+8.8 驗證重點不是舊表名，而是找等價的：
 
-## 19. 最新下一批閱讀優先序
+`server state/config -> UI action identifier -> client resource`。
 
-1. 天堂私服工具介紹尚未讀：Pakext / PakViewe / PackViewer_beta2 / MTools / XML-SPZ-HTML crypto / Linskin 等，完成 Resource Tool Matrix。
-2. 天堂私服核心分析/修改：優先 NPC / Item / GM create / packet state，擴充 server trace template。
-3. x64dbg 36 / OllyDBG 16 / CE 10：debugger playbook。
-4. x86 / 排序演算法：只抽能直接支援 binary/resource/inventory 的內容。
-5. XML/MySQL/Java/C：只讀能補 DB/server/resource 鏈的文章。
-6. Python/OpenCV：preview、GUI/threading、YOLO/vision 驗證與自動分類。
-7. 最後補齊 783 篇 Archives title-level inventory 與逐篇閱讀狀態。
+## 12. Inventory server model：新高價值研究方向
+
+GM 金幣/創物、出生道具等舊版文章提供了很有用的 data-flow 模板：
+
+```text
+item template/config
+ -> item instance materialization
+ -> inventory owner/container
+ -> stack merge OR new entry
+ -> persistence
+ -> client refresh/packet
+```
+
+舊 `storeItem` 的 stack/new 分支只是 `JJ_381_DIRECT`；8.8 要重新找到：
+- authoritative inventory owner
+- item collection/data structure
+- stack-equivalence predicate
+- insert/remove/update producer
+- DB persistence timing
+- outbound inventory refresh/update
+- reorder/sort producer 是否與 add/remove 共用 generic container path
+
+這直接服務目前背包 reorder 研究。
+
+## 13. NPC spawn 端到端鏈
+
+舊 GM 創怪/NPC：
+
+`npc template + impl type -> spawn persistent row -> runtime instance -> client visibility`。
+
+8.8 可與已知 gfx 研究合併成：
+
+```text
+NPC DB/template
+ -> runtime NPC instance
+ -> spawn/state packet
+ -> gfx/morph identifier
+ -> client resolver
+ -> sprite/resource
+```
+
+要分 template identity、runtime object identity、resource identity。
+
+## 14. Server Debug template
+
+帳號 Debug、出生道具、GM command 系列形成固定方法：
+
+```text
+observable action
+ -> DB/config candidate
+ -> SQL/table/class literal
+ -> model/object field
+ -> Find Usages/caller
+ -> service/clientpacket/command dispatcher
+ -> breakpoint before predicate
+ -> inspect/evaluate owner state
+ -> step branch
+ -> packet/DB mutation/visible result
+```
+
+可用 debugger 暫改 runtime variable 來驗證 branch，不必永久修改設定。
+
+8.8 使用時只沿方法，不沿 Java path、line number、packet result code、舊欄位。
+
+## 15. Command path 與 normal packet path 要分開
+
+舊 `/who` vs GM `.who` 證明同一個可見功能可能有兩條入口：
+- GM command dispatcher
+- normal client packet handler
+
+8.8 研究 UI/game action 時不能因找到一個 admin/debug path 就認定那是正常遊戲 producer。
+
+## 16. Launcher / LinLogin 不應預設為單純啟動器
+
+舊 Login_v380a research 顯示 launcher 生態可能包含：
+- server list / name / endpoint / version metadata
+- Login.ini 類設定
+- packet encryption/key generation 選項
+- movement packet compatibility option
+- morph PAK generation/loading
+- update/server-list update
+- anti-cheat / multi-client 等
+
+### HYP_880
+
+對 8.8 要逐項驗證 `LinLogin.bin / Lin.bin / launcher` 的責任：
+
+```text
+endpoint config?
+version negotiation?
+crypto bootstrap?
+resource/morph injection?
+patch/update?
+process launch/handoff only?
+```
+
+不可因 3.81C launcher 有某功能就假定 8.8 也有。
+
+## 17. Network reachability 與 game protocol 分層
+
+本輪 IP/LAN/WAN/firewall/NAT/DHCP 文章主要提供診斷分層方法：
+
+```text
+server bind/listen
+ -> local firewall
+ -> LAN address
+ -> NAT/port-forward
+ -> public/advertised endpoint
+ -> launcher connect bootstrap
+ -> transport/crypto/protocol
+ -> login/game state
+```
+
+8.8 實際 transport/port 必須由 runtime socket/packet capture 確認；不能沿用舊 2000/TCP-UDP 範例。
+
+## 18. Map：render 與 authoritative property 分開
+
+舊 map viewer/converter/property 工具提示：client 可見 map/tile resource 與 server collision/region/map attributes 可能分層。
+
+若未來研究 8.8 map：
+
+`client render map/resource` 與 `server movement/collision/map state` 要分開建立 provenance，再以 coordinate transition 回驗。
+
+## 19. Reverse engineering playbook
+
+由 CE/x64dbg/OllyDBG 與 Server Debug 文抽出的固定流程：
+
+1. 從可觀察事件、UI 字串、錯誤、API 或 xref 縮小範圍。
+2. 只重現一個事件。
+3. `what writes` 找 producer；`what accesses` 找 consumer/read path。
+4. 記 caller stack、arguments/registers、owner pointer。
+5. heap VA 只算 session evidence；追 static/module anchor 或 constructor/global owner。
+6. 多級 pointer chain 逐層驗證。
+7. breakpoint 前先 inspect/evaluate predicate；必要時控制 runtime variable 走指定 branch。
+8. capture packet/DB/resource/state transition，閉環後才標 `CONFIRMED_880`。
+
+## 20. 本輪 50 篇分類與累計
+
+本輪：
+- Client 17
+- Server 9
+- Protocol 9
+- Shared 11
+- Other 4
+
+詳細逐篇證據：`docs/JJ_RESEARCH_PROGRESS_20260907_1815.md`。
+
+可追溯累計：**88 / 783**；剩餘 **695**。
+
+## 21. 下一批研究優先序
+
+1. 天堂私服尚未完成的 Server/Protocol 核心文章，優先補 NPC/Item/packet/state 的正常遊戲路徑，而非只看 GM path。
+2. x64dbg 36 / OllyDBG 16 / CE 10 逐篇完成，建立 8.8 runtime playbook。
+3. x86 3 / 排序演算法 7：只抽 ABI、pointer、stable multi-key reorder 有直接價值內容。
+4. Java/MySQL/XML/C：依 `DB -> server owner -> packet -> client/resource` cross-reference 精讀。
+5. Python/OpenCV：優先 resource preview、GUI/threading、YOLO/vision 自動分類與驗證。
+6. 持續補齊 783 篇 title-level ledger，讓每篇有唯一 URL 與狀態，避免任何重讀。
