@@ -36,7 +36,7 @@ jobs:
           git diff -- .github/workflows/jj_cp010_once.yml
           git config user.name 'sunsune331-ai'
           git config user.email 'sunsune331@gmail.com'
-          git add .github/workflows/jj_cp010_once.yml
+          git add -f .github/workflows/jj_cp010_once.yml
           git rm .github/workflows/fix_jj_cp010_once.yml
           git commit -m 'fix: force-stage JJ CP-010 research ledgers'
           git push origin HEAD:main
