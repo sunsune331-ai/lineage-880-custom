@@ -40,12 +40,56 @@ jobs:
           git config user.name "JJ Ledger Runner"
           git config user.email "jj-ledger-runner@users.noreply.github.com"
 
-      - name: Baseline tests and validation
+      - name: Fix porcelain-leading-space regression and add test
         shell: bash
         run: |
           set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          tool = Path('tools/jj_ledger.py')
+          text = tool.read_text(encoding='utf-8')
+          old = 'return completed.stdout.strip()'
+          new = 'return completed.stdout.rstrip("\\r\\n")'
+          if text.count(old) != 1:
+              raise SystemExit(f'expected exactly one _git strip occurrence, found {text.count(old)}')
+          tool.write_text(text.replace(old, new), encoding='utf-8')
+
+          test = Path('tests/test_jj_ledger.py')
+          t = test.read_text(encoding='utf-8')
+          marker = '\n\nif __name__ == "__main__":\n'
+          if marker not in t:
+              raise SystemExit('test insertion marker missing')
+          method = r'''
+
+              def test_git_status_preserves_first_porcelain_status_column(self) -> None:
+                  subprocess.run(["git", "init", "-b", "main"], cwd=self.root, check=True, capture_output=True, text=True)
+                  subprocess.run(["git", "config", "user.name", "Ledger Test"], cwd=self.root, check=True)
+                  subprocess.run(["git", "config", "user.email", "ledger-test@example.invalid"], cwd=self.root, check=True)
+                  subprocess.run(
+                      ["git", "add", "-f", "research/article_ledger.jsonl", "research/checkpoint_ledger.jsonl"],
+                      cwd=self.root,
+                      check=True,
+                  )
+                  subprocess.run(["git", "commit", "-m", "baseline"], cwd=self.root, check=True, capture_output=True, text=True)
+                  self.articles.write_text(self.articles.read_text(encoding="utf-8") + "\n", encoding="utf-8")
+                  porcelain = jj_ledger._git(self.root, "status", "--porcelain")
+                  self.assertTrue(porcelain.startswith(" M research/article_ledger.jsonl"), porcelain)
+                  jj_ledger._require_clean_or_ledger_only(self.root, self.paths)
+          '''
+          # Dedent only the leading blank line; method itself intentionally stays class-indented.
+          method = method.replace('\n              def ', '\n    def ').replace('\n                  ', '\n        ')
+          test.write_text(t.replace(marker, method + marker), encoding='utf-8')
+          PY
           python3 -m unittest tests.test_jj_ledger
           python3 tools/jj_ledger.py validate
+          git add tools/jj_ledger.py tests/test_jj_ledger.py
+          git commit -m "fix: preserve git porcelain status columns in JJ ledger tool"
+          FIX_SHA="$(git rev-parse HEAD)"
+          echo "LEDGER_TOOL_FIX_SHA=$FIX_SHA"
+          git push origin main
+          git fetch origin main
+          test "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)"
 
       - name: CP-011 dry-run append validate commit push
         shell: bash
