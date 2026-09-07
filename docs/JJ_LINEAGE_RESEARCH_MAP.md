@@ -1,6 +1,6 @@
 # J.J.'s Blogs 天堂私服研究地圖（3.81C → 8.8C 驗證導向）
 
-最後整理：2026-09-07 18:15
+最後整理：2026-09-07 18:16
 
 > J.J. 的 3.81C / L1J-3.80c 文章是 `research evidence`。位址、class、欄位、packet code、action ID、resource precedence、parser 行為都不能直接宣告為 8.8C 事實。8.8 必須以自身 source/resource、Ghidra/Argus、packet/runtime evidence 重驗。
 
@@ -353,15 +353,86 @@ server bind/listen
 - Shared 11
 - Other 4
 
-詳細逐篇證據：`docs/JJ_RESEARCH_PROGRESS_20260907_1815.md`。
+18:15 的 50 篇逐篇證據：`docs/JJ_RESEARCH_PROGRESS_20260907_1815.md`；本次 9 篇完整事實補錄與去重結果：`docs/JJ_RESEARCH_PROGRESS_20260907_1816.md`。
 
-可追溯累計：**88 / 783**；剩餘 **695**。
+可追溯累計：**88 / 783**；剩餘 **695**。本次 9 篇均已在 16:08 或 18:15 ledger 記錄完成，因此不重複計數；本次只新增更完整的工具操作、格式、server/client 交叉資訊與待驗證標記。
 
-## 21. 下一批研究優先序
+## 21. Resource Tool Matrix：能力必須分層
 
-1. 天堂私服尚未完成的 Server/Protocol 核心文章，優先補 NPC/Item/packet/state 的正常遊戲路徑，而非只看 GM path。
-2. x64dbg 36 / OllyDBG 16 / CE 10 逐篇完成，建立 8.8 runtime playbook。
-3. x86 3 / 排序演算法 7：只抽 ABI、pointer、stable multi-key reorder 有直接價值內容。
-4. Java/MySQL/XML/C：依 `DB -> server owner -> packet -> client/resource` cross-reference 精讀。
-5. Python/OpenCV：優先 resource preview、GUI/threading、YOLO/vision 自動分類與驗證。
-6. 持續補齊 783 篇 title-level ledger，讓每篇有唯一 URL 與狀態，避免任何重讀。
+**來源：J.J. Pakext / PakViewe / PackViewer_beta2 / MTools / XML 加解密 / SPZ、XML 加解密 / 對話檔加密解密 / 登入器素材抽檔 / Linskin4.04；狀態均為 `PUBLIC_FULL + COFFEE_RESOURCE_BLOCK`。**
+
+**版本標記：九篇各自頁面未明列精確 client build；暫依周邊研究脈絡歸在 3.81C 工具鏈，但版本未確認。以下工具行為全數保留為舊版文章直接記錄，不因尚未適用 8.8 而刪除。**
+
+舊工具的功能不是同一層：
+
+| Tool | Container inventory | Search/filter | Preview/decrypt | Export/convert | Mutate/repack |
+|---|---|---|---|---|---|
+| Pakext | 單一 IDX | 欄位排序 | 未見正文證據 | extract | add/delete |
+| PakViewe | 單一 IDX | filter/fuzzy search/sort | image/animation/text + zoom | export/export-to | add/update/delete |
+| PackViewer_beta2 | PAK 或 client folder | type filter/search/sort | image/animation/text；XML auto-decrypt | export | add/delete；Save 實測疑似無效 |
+| MTools | client directory / TBT package | 未見正文證據 | TBT image list | selected/all extract | 未見正文證據 |
+| Linskin4.04 | PAK list | extension filter | 未見 browser preview 證據 | PAK extract、IMG↔BMP | 未見正文證據 |
+
+### Toolkit 結論
+
+8.8 Browser 的可重用 pipeline 應拆成：
+
+`container inventory → metadata search/filter → on-demand preview/decrypt → export/convert → optional isolated mutation/repack`
+
+前四層也不應綁死在同一 UI。第一個安全里程碑只實作唯讀 inventory/search/preview；add/update/delete/repack 必須另有隔離副本、round-trip 與 client load validation，不可因舊工具存在按鈕就視為 8.8 已支援。
+
+## 22. XML / SPZ：ciphertext、plaintext 與名稱正規化是三個不同狀態
+
+**來源版本：周邊研究定位為 3.81C，但這兩篇頁面未明列精確 client build；版本、8.8 cipher/loader 均未確認。**
+
+舊版兩組工具提供互補證據：
+
+- 單檔 XML 工具以 `_d.xml` / `_e.xml` 產生解密與加密輸出；作者警告反覆多次轉換會使內容錯亂。
+- 批次 SPZ/XML 工具對同目錄檔案解密為 `.dec`，加密前要求輸入改為 `.e`；文章示範 `polymorphList.xml` 與 `list.spz` round trip 後 ciphertext 與原始內容一致。
+- 舊版未加密 XML 直接吃檔會觸發 `XML Encryption Check(...)`；因此 parser 可讀性與 loader 接受性不能混為一談。
+
+### 8.8 驗證要求
+
+Browser row 至少保存：`packed/raw bytes`、`detected encryption state`、`decoded bytes/text`、`logical entry name`、`temporary conversion suffix`、`round-trip hash`。任何 3.81C suffix 或 cipher 都只能當工具 workflow 證據，不能直接套用到 8.8。
+
+## 23. HTML dialogue：server basename 與 client resource 是可交叉驗證鏈
+
+**來源版本：server SQL/path 符合周邊 L1J-3.80c 研究脈絡，但文章頁未明列精確 client build；版本、8.8 欄位與接受策略待驗。**
+
+文章以 server `npcaction.normal_action = colusher` 找到 client `colusher.html`，修改並吃檔後由同一 NPC 對話畫面回驗；舊版 client 在該實驗中可接受加密或未加密 HTML。
+
+這提供一條可重用研究鏈：
+
+`NPC interaction → server dialogue basename → packet/action → client HTML entry → decode/render → visible text`
+
+8.8 不得先假設欄位仍叫 `normal_action`，也不得先假設明文 HTML 仍可載入；應由已知 NPC 對話事件同步查 server lookup 與 client resource open。
+
+## 24. Special-purpose extractors 不能冒充 generic loader evidence
+
+`登入器素材抽檔.exe` 放在 client root 執行後輸出 `skin`，只證明該工具有專用素材抽取流程。它沒有提供「遊戲 client 實際從哪個 container/offset 讀取」的正文證據。
+
+對 8.8 的規則：special extractor 的輸出可作 corpus/visual comparison，但 source provenance 仍要由 IDX/PAK inventory 或 runtime file-open trace建立。
+
+## 25. 8.8 Resource Browser 最小驗收條件
+
+由本輪工具矩陣導出的 acceptance criteria：
+
+1. 任一 entry 都能顯示 logical name、source IDX、source PAK、offset/size、format、encryption/decode status。
+2. 搜尋/排序只改 view，不改底層 entry order 或 container bytes。
+3. 點選後才 decode；圖片、動畫、文字/XML preview 各自回報 decoder 與失敗原因。
+4. 原始 bytes 與 decode result 分開 cache；同名 duplicate 不覆蓋 source identity。
+5. XML/SPZ/HTML 顯示「可解析」不等於「client 可接受」；需要獨立 loader validation。
+6. export/convert 的 round-trip 必須以 hash、entry metadata 與重新載入結果驗證。
+7. add/update/delete/repack 不屬第一階段唯讀 PoC。
+
+## 26. 最新下一批閱讀優先序
+
+等待使用者明確下令後才執行；每批最多 10 篇，完整保存事實、去重計數、更新 checkpoint、commit、push 後停止。重讀既有文章不增加 88/783 基線。
+
+1. 天堂私服尚未完成的 Server/Protocol 核心文章：優先 NPC / Item / packet/state 的正常遊戲路徑，擴充 server trace template。
+2. x64dbg 36 / OllyDBG 16 / CE 10：逐篇完成 debugger playbook。
+3. 補齊工具矩陣時先以 URL ledger 排除 18:15 已讀的 PakViewer 介紹、吃檔與 map/SPR 轉換文章。
+4. x86 / 排序演算法：只抽能直接支援 binary/resource/inventory 的內容。
+5. XML/MySQL/Java/C：只讀能補 DB/server/resource 鏈的文章。
+6. Python/OpenCV：preview、GUI/threading、YOLO/vision 驗證與自動分類。
+7. 最後補齊 783 篇 Archives title-level inventory 與逐篇閱讀狀態。

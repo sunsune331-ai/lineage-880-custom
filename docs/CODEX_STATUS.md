@@ -1,9 +1,9 @@
-CURRENT GOAL = 執行 REVIEWER_FEEDBACK：驗證 8.8 主背包手動 reorder entry、persisted-order producer 與 refresh tail
-STATUS = NEED_USER_ACTION
-CONFIRMED = 已 fast-forward pull origin/main 至 b23cc89；Argus MCP 可呼叫；GitHub REVIEWER_FEEDBACK 自動 heartbeat reviewer-feedback 已啟用（每 5 分鐘）
-DISPROVEN = 本輪沒有新增反證；既有結論維持：InventoryItemIcon+0x94/+0x98 是 idle POINT pair，0x004C32B0/0x004C32B8 不是 reorder producer
-CHANGED = 讀取 docs/REVIEWER_FEEDBACK.md 並接管 EXECUTOR ACTION；更新本狀態與 Function Map 的 session recheck 狀態；建立只監看 REVIEWER_FEEDBACK.md 新 remote commit 的自動 heartbeat
-RUNTIME EVIDENCE = Argus mem_attach(process=LinLogin.bin) 於 2026-09-07 直接回傳「LinLogin.bin 未執行」；因此尚未 attach、未設 execute capture，也未沿用舊 PID/heap VA
-BLOCKER = 需要使用者啟動並登入 8.8 client，開啟主背包；這是進入四 anchor 唯讀 execute capture 前唯一需要的遊戲內人工操作
-RECHECK NEEDED = client live 後先以 bytes/AOB 重驗 0x00DFB6E0、0x00DFC6B0、0x00DE0E40、0x00DFA580，再重定位 RenewalInventoryUI、InventoryItemGrid、manager 與四組 vectors
-NEXT EXECUTABLE STEP = 使用者啟動並登入 8.8 client、開啟主背包後回覆；Executor 隨即 attach、完成四 anchor capture-ready，屆時才要求唯一一次手動拖放
+CURRENT GOAL = 維持現有 docs/JJ 路徑，繼續 783 篇網站研究並完成下一個安全 checkpoint
+STATUS = SUCCESS
+CONFIRMED = 本輪實際精讀 9 篇 PUBLIC_FULL 技術正文；與 16:08、18:15 ledger 去重後 9 篇均屬既有完成項，累計維持 88/783、剩餘 695；所有 Client/Server/Protocol/資源與修改工具/封包/格式資訊均保留，不確定者標待驗證或版本未確認
+DISPROVEN = 工具名稱相近不代表相同能力；舊版 tool suffix、encryption、container mutation 與 client path 不能直接視為 8.8 已確認行為
+CHANGED = 先整合 GitHub 最新 50 篇 checkpoint，再於原路徑更新 JJ_SITE_RESEARCH_TRACKER、JJ_LINEAGE_RESEARCH_MAP、既有 addendum，新增 JJ_RESEARCH_PROGRESS_20260907_1816；未移動、改名或重新分類任何文件
+RUNTIME EVIDENCE = 本 checkpoint 為網站 primary-source 研究；未修改 client/server/database，未執行 Argus runtime 操作
+BLOCKER = 無；本輪安全 checkpoint 已完成
+RECHECK NEEDED = 8.8 需另驗 IDX/PAK source provenance、XML/SPZ/HTML encryption acceptance、decoder round-trip 與 client loader 行為
+NEXT EXECUTABLE STEP = 等待使用者下一個明確 Goal；網站研究每批最多 10 篇，完整記錄、去重、更新 docs、commit、push 後停止，重讀不增加 88/783 基線

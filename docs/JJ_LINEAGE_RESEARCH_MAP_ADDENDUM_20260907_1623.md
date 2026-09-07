@@ -1,5 +1,7 @@
 # J.J.'s Blogs 天堂私服研究地圖補充 — 2026-09-07 16:23
 
+最後追加：2026-09-07 18:16
+
 > 本檔是 `JJ_LINEAGE_RESEARCH_MAP.md` 的本輪增量。來源文章版本為 Lineage 3.81C / L1J-3.80c；以下只把「資料模型 / runtime 行為 / 驗證方法」翻譯成 8.8C 待驗證項，**不沿用舊版位址與版本特定常數**。
 
 ## 本輪新增完整正文證據
@@ -175,8 +177,44 @@ server/client visible ID
 - fallback used? yes/no
 - source-version confidence (`3.81C hypothesis`, `8.8 static`, `8.8 runtime confirmed`)
 
+## 2026-09-07 18:16 追加：Resource Tool Matrix 完整化
+
+本次實際精讀 FULL 正文來源共 9 篇（下載/解壓密碼區塊另記 `COFFEE_RESOURCE_BLOCK`）；與 16:08、18:15 ledger 去重後，九篇都只作完整事實補錄，不增加 article count：
+
+1. Pakext — https://morosedog.gitlab.io/private-lineage-20220206-private-lineage-73/
+2. PakViewe — https://morosedog.gitlab.io/private-lineage-20220207-private-lineage-74/
+3. PackViewer_beta2 — https://morosedog.gitlab.io/private-lineage-20220209-private-lineage-76/
+4. MTools — https://morosedog.gitlab.io/private-lineage-20220213-private-lineage-80/
+5. XML 加解密 — https://morosedog.gitlab.io/private-lineage-20220214-private-lineage-81/
+6. SPZ、XML 加解密 — https://morosedog.gitlab.io/private-lineage-20220215-private-lineage-82/
+7. 對話檔加密解密 — https://morosedog.gitlab.io/private-lineage-20220216-private-lineage-83/
+8. 登入器素材抽檔 — https://morosedog.gitlab.io/private-lineage-20220217-private-lineage-84/
+9. Linskin4.04 — https://morosedog.gitlab.io/private-lineage-20220219-private-lineage-86/
+
+完整操作細節、檔名、輸出目錄、archive 名稱、文章內部不一致與版本未確認項，保存在 `JJ_RESEARCH_PROGRESS_20260907_1816.md`；此 addendum 只做非重複的跨文整合，不以 8.8 適用性作為原始資訊的刪除條件。
+
+### 新增直接證據
+
+- Pakext、PakViewe、PackViewer_beta2 都有 container mutation 功能，但 preview/search 能力不同；工具名稱相近不代表相同 parser 或寫回可靠度。
+- PackViewer_beta2 可在 preview 時自動解密 XML，證明 `entry lookup` 與 `format-specific decode` 可分層。
+- MTools 是 TBT image-package browser，正文只證明 selected/all extract；不能補推搜尋或寫回。
+- Linskin4.04 同時提供 PAK entry listing/extract 與 IMG↔BMP batch conversion；它是 extraction + format conversion 的組合，不是 game-faithful UI compositor。
+- XML 單檔工具與 SPZ/XML 批次工具使用不同暫存命名協議；副檔名只是工具 workflow，不應進入 8.8 resource identity。
+- 3.81C XML loader 有 encryption check，HTML 對話檔則在文章實驗中可用明文或密文；不同 textual resource class 的接受策略不能共用假設。
+- server `npcaction.normal_action` basename 能連到 client HTML dialogue entry，形成 server/client 可見結果的交叉驗證點。
+- 登入器素材抽檔輸出 `skin` 只屬 special-purpose extraction evidence，不能證明遊戲 loader path。
+- `list.spz` 與 `list.spr` 格式相同是文章作者的理論描述，精確版本與 byte-format 未確認，保留為待驗證而非刪除。
+- 對話檔文章後段把 `colusher.html` 寫成 `colusher.xml`；這是 source inconsistency，保留並標記，不自行修成格式結論。
+- Linskin 類型範例含原文 `thml`；疑似指 `html`，但在未驗證工具前保留原字。
+
+### 8.8 安全邊界
+
+- 所有文章描述的工具、suffix、路徑與加密行為都屬 `JJ_381_DIRECT`，不是 `CONFIRMED_880`。
+- Toolkit 的第一階段只採 `inventory/search/preview/export` 唯讀能力；container mutation/repack 不進同一 PoC。
+- encrypted resource 必須保留 raw bytes、decoded view、logical name 與 round-trip evidence；不能只保存編輯後 plaintext。
+
 ## 下一輪優先
 
-1. 把剩餘 morph 章節的格式/type/attr 等正文補齊到同一資料模型。
-2. 精讀 PakViewer / LineageSpr / Icon / SFDviewer 工具功能，判斷哪些可直接轉成 Toolkit decoder/preview acceptance criteria。
-3. 轉進 x64dbg / OllyDBG / Cheat Engine，建立 `observable event -> breakpoint -> caller/state -> rebinding` 的 8.8 runtime playbook。
+1. 天堂私服尚未完成的 Server/Protocol 核心文章：NPC / Item / packet/state 正常遊戲路徑，擴充 server trace template。
+2. 轉進 x64dbg / OllyDBG / Cheat Engine 逐篇研究，建立 `observable event -> breakpoint -> caller/state -> rebinding` 的 8.8 runtime playbook。
+3. 持續補工具矩陣前先用 URL ledger 去重，不再重讀 18:15 已完成的工具/吃檔/map/SPR 文章。
