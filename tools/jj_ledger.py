@@ -261,7 +261,7 @@ def append_batch(paths: LedgerPaths, incoming_articles_path: Path, incoming_chec
 
 def _git(root: Path, *args: str) -> str:
     completed = subprocess.run(["git", *args], cwd=root, check=True, text=True, capture_output=True)
-    return completed.stdout.strip()
+    return completed.stdout.rstrip("\r\n")
 
 
 def _require_clean_or_ledger_only(root: Path, paths: LedgerPaths) -> None:

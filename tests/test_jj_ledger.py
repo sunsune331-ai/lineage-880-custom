@@ -119,5 +119,21 @@ class LedgerTests(unittest.TestCase):
             jj_ledger.validate(self.paths)
 
 
+    def test_git_status_preserves_first_porcelain_status_column(self) -> None:
+        subprocess.run(["git", "init", "-b", "main"], cwd=self.root, check=True, capture_output=True, text=True)
+        subprocess.run(["git", "config", "user.name", "Ledger Test"], cwd=self.root, check=True)
+        subprocess.run(["git", "config", "user.email", "ledger-test@example.invalid"], cwd=self.root, check=True)
+        subprocess.run(
+            ["git", "add", "-f", "research/article_ledger.jsonl", "research/checkpoint_ledger.jsonl"],
+            cwd=self.root,
+            check=True,
+        )
+        subprocess.run(["git", "commit", "-m", "baseline"], cwd=self.root, check=True, capture_output=True, text=True)
+        self.articles.write_text(self.articles.read_text(encoding="utf-8") + "\n", encoding="utf-8")
+        porcelain = jj_ledger._git(self.root, "status", "--porcelain")
+        self.assertTrue(porcelain.startswith(" M research/article_ledger.jsonl"), porcelain)
+        jj_ledger._require_clean_or_ledger_only(self.root, self.paths)
+
+
 if __name__ == "__main__":
     unittest.main()
