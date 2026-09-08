@@ -45,8 +45,9 @@ def read_jsonl(path: Path, *, allow_missing: bool = False) -> list[dict[str, Any
 
 
 def validate_manifest(rows: list[dict[str, Any]]) -> None:
-    if len(rows) != 50:
-        raise ScanLedgerError(f"manifest must have 50 rows, got {len(rows)}")
+    """Validate a complete, page-aligned immutable archive manifest."""
+    if not rows or len(rows) % 10 != 0:
+        raise ScanLedgerError(f"manifest must contain a non-zero whole number of 10-row archive pages, got {len(rows)}")
     urls: set[str] = set()
     for ordinal, row in enumerate(rows, 1):
         expected_id = f"JJ-SCAN-{ordinal:06d}"
