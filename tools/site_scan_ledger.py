@@ -72,8 +72,8 @@ def _validate_scan_row(row: dict[str, Any], manifest_row: dict[str, Any]) -> Non
             raise ScanLedgerError(f"{scan_id}: {field} does not match immutable manifest")
     if row.get("classification") not in CLASSIFICATIONS:
         raise ScanLedgerError(f"{scan_id}: classification must be one of {sorted(CLASSIFICATIONS)}")
-    if row.get("body_read") is not True:
-        raise ScanLedgerError(f"{scan_id}: body_read must be true")
+    if not isinstance(row.get("body_read"), bool):
+        raise ScanLedgerError(f"{scan_id}: body_read must be boolean")
     rationale = row.get("rationale")
     if not isinstance(rationale, str) or not rationale.strip():
         raise ScanLedgerError(f"{scan_id}: non-empty rationale required")
