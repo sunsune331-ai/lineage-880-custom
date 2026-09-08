@@ -24,123 +24,95 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Write CP-013 inputs
-        env:
-          ARTICLES_B64: "eyJpZCI6IkpKLTAwMDIwOSIsInVybCI6Imh0dHBzOi8vbW9yb3NlZG9nLmdpdGxhYi5pby9wcml2YXRlLWxpbmVhZ2UtMjAyMjAyMjEtcHJpdmF0ZS1saW5lYWdlLTg4LyIsImNhbm9uaWNhbF91cmwiOiJodHRwczovL21vcm9zZWRvZy5naXRsYWIuaW8vcHJpdmF0ZS1saW5lYWdlLTIwMjIwMjIxLXByaXZhdGUtbGluZWFnZS04OC8iLCJ0aXRsZSI6IuWkqeWggueugOS8uiB8IFNGRHZpZXdlciDlt6Xlhbco5ZyW5qqU5Z2Q5qiZ5a6a5L2NKCkiLCJzb3VyY2UiOiJKLkouJ3MgQmxvZ3MiLCJwdWJsaXNoZWRfYXQiOiIyMDIyLTAyLTIxIiwiZG9tYWlucyI6WyJDbGllbnQiXSwidG9waWNzIjpbIkxpbmVhZ2UiLCJTRkQiLCJTRkR2aWV3ZXIiLCJTUFJBIiwiQk1QIiwiZnJhbWUgb2Zmc2V0IiwiY29tcG9zaXRlIiwiYW5pbWF0aW9uIl0sInZlcnNpb25zIjpbImxlZ2FjeSBMaW5lYWdlIGNsaWVudCB3b3JrZmxvdzsgMjAyMiBhcnRpY2xlIGNvbnRleHQiXSwiY2xhaW1zIjpbIlNGRHZpZXdlciBwcmV2aWV3cyBTRkQgYW5pbWF0aW9uIG1ldGFkYXRhIHRvZ2V0aGVyIHdpdGggZGVjb2RlZCBmcmFtZSBpbWFnZXMgcmF0aGVyIHRoYW4gdHJlYXRpbmcgZnJhbWVzIGFzIHBvc2l0aW9ubGVzcyBiaXRtYXBzIiwidGhlIGRlbW9uc3RyYXRlZCB2aWV3ZXIgY2FuIGxvYWQgdHdvIFNGRCBzb3VyY2VzIGFuZCBtZXJnZS9jb21wb3NpdGUgdGhlaXIgcHJldmlld3MsIHN1Y2ggYXMgYSBjaGFyYWN0ZXIgcGx1cyBzaGFkb3ciXSwidGVjaG5pY2FsX2RldGFpbHMiOlsidGhlIFVJIHNob3dzIHRvdGFsIGZyYW1lIGNvdW50LCB0cmFuc3BhcmVudCBjb2xvciwgY3VycmVudCBCTVAgbmFtZSBhbmQgcGVyLWZyYW1lIFgvWSBwb3NpdGlvbiIsImNvbnRyb2xzIGluY2x1ZGUgcHJldmlvdXMvbmV4dCBmcmFtZSwgcGxheS9zdG9wIGFuZCBwbGF5YmFjayBzcGVlZCBpbiBtaWxsaXNlY29uZHMiLCJ0aGUgYXJ0aWNsZSB1c2VzIFNQUi10by1CTVAgY29udmVyc2lvbiBvdXRwdXQgdG8gb2J0YWluIFNGRCBmaWxlcyBzdWNoIGFzIDI0MC0xMy5zZmQgYW5kIDI0MC0yMC5zZmQiLCJ0d28gU0ZEIHNvdXJjZXMgY2FuIGJlIHN3aXRjaGVkIG9yIG1lcmdlZCBpbiB0aGUgcHJldmlldyJdLCJhcnRpZmFjdHMiOlsiMjQwLTEzLnNwciIsIjI0MC0yMC5zcHIiLCIyNDAtMTMuc2ZkIiwiMjQwLTIwLnNmZCIsIm51bWJlcmVkIEJNUCBmcmFtZXMiXSwidG9vbHMiOlsiU0ZEdmlld2VyIiwiU1BSLUJNUCBjb252ZXJzaW9uIHRvb2wiXSwiY2xhc3NlcyI6W10sIm1ldGhvZHMiOltdLCJmaWVsZHMiOltdLCJwYWNrZXRzIjpbXSwib3Bjb2RlcyI6W10sInJlc291cmNlcyI6WyJTUFJBIiwiU0ZEIiwiQk1QIl0sInByb2NlZHVyZXMiOlsiZGVjb2RlIHNlbGVjdGVkIFNQUiB3aGlsZSByZXRhaW5pbmcgU0ZEIG1ldGFkYXRhIiwib3BlbiBTRkQgaW4gdmlld2VyIiwiaW5zcGVjdCBmcmFtZSBYL1kgYW5kIHRyYW5zcGFyZW5jeSBtZXRhZGF0YSIsInByZXZpZXcgb25lIG9yIHR3byBsYXllcmVkIGFuaW1hdGlvbnMiXSwibGltaXRhdGlvbnMiOlsiZG93bmxvYWQvcGFzc3dvcmQgYmxvY2sgaXMgY29mZmVlLXByb3RlY3RlZCBhbmQgd2FzIG5vdCB0cmVhdGVkIGFzIHJlYWQgY29udGVudCIsImxlZ2FjeSBTRkQgc2VtYW50aWNzIG1heSBkaWZmZXIgZnJvbSA4LjgiXSwicHJvamVjdF9yZWxldmFuY2UiOlsic3Ryb25nIGV2aWRlbmNlIHRoYXQgYW5pbWF0aW9uIGZpZGVsaXR5IHJlcXVpcmVzIHBlci1mcmFtZSBwbGFjZW1lbnQvb3JpZ2luIG1ldGFkYXRhIGluIGFkZGl0aW9uIHRvIHBpeGVscyIsInN1cHBvcnRzIGxheWVyZWQvY29tcG9zaXRlIHNwcml0ZSBwcmV2aWV3IHN1Y2ggYXMgY2hhcmFjdGVyIHBsdXMgc2hhZG93Il0sInN1cHBvcnRzIjpbIkpKLTAwMDIwOCJdLCJjb25mbGljdHMiOltdLCJ2ZXJpZnkiOlsiaWRlbnRpZnkgOC44IHBlci1mcmFtZSBvcmlnaW4vb2Zmc2V0L3RpbWluZyBmaWVsZHMiLCJjb21wYXJlIHRydXN0ZWQgdmlld2VyIGNvbXBvc2l0ZSBwbGFjZW1lbnQgd2l0aCBUb29sa2l0IGRlY29kZSJdLCJldmlkZW5jZV9sZXZlbCI6InJlc2VhcmNoIiwidmVyc2lvbl9zdGF0dXMiOiJ1bnZlcmlmaWVkIiwiZWlnaHRfZWlnaHRfc3RhdHVzIjoidW52ZXJpZmllZCIsInJlYWRfc3RhdHVzIjoiY29tcGxldGUifQp7ImlkIjoiSkotMDAwMjEwIiwidXJsIjoiaHR0cHM6Ly9tb3Jvc2Vkb2cuZ2l0bGFiLmlvL3ByaXZhdGUtbGluZWFnZS0yMDIyMDIyMi1wcml2YXRlLWxpbmVhZ2UtODkvIiwiY2Fub25pY2FsX3VybCI6Imh0dHBzOi8vbW9yb3NlZG9nLmdpdGxhYi5pby9wcml2YXRlLWxpbmVhZ2UtMjAyMjAyMjItcHJpdmF0ZS1saW5lYWdlLTg5LyIsInRpdGxlIjoi5aSp5aCC56eB5pyN IHwg6LaF57Ch5piT5Zyw5ZyW6aCQ6Ka9IOW3peWFtyIsInNvdXJjZSI6IkouSi4ncyBCbG9ncyIsInB1Ymxpc2hlZF9hdCI6IjIwMjItMDItMjIiLCJkb21haW5zIjpbIkNsaWVudCJdLCJ0b3BpY3MiOlsiTGluZWFnZSIsIm1hcCIsIm1hcCBwcmV2aWV3Iiwic2FmZSB6b25lIiwiY29tYmF0IHpvbmUiLCJ6b29tIiwiZXhwb3J0Il0sInZlcnNpb25zIjpbImxlZ2FjeSBMaW5lYWdlIGNsaWVudCB3b3JrZmxvdzsgYXJ0aWNsZSBjb250ZXh0Il0sImNsYWltcyI6WyJ0aGUgZGVtb25zdHJhdGVkIE1hcFRvb2wgaW52ZW50b3JpZXMgY2xpZW50IG1hcHMsIHByZXZpZXdzIHRoZW0gYW5kIGNhbiBleHBvcnQgc2VsZWN0ZWQgb3IgYWxsIG1hcCBkYXRhIiwidGhlIHByZXZpZXcgY2FuIHZpc3VhbGl6ZSBub3JtYWwsIHNhZmUgYW5kIGNvbWJhdC1hcmVhIGluZm9ybWF0aW9uIl0sInRlY2huaWNhbF9kZXRhaWxzIjpbInZpZXcgYW5nbGUgaXMgZGVzY3JpYmVkIGFzIExpbmVhZ2UgNDUtZGVncmVlIHN0eWxlIiwienVvbSBjaG9pY2VzIHNob3duIGFyZSAxLCAyLCA0IGFuZCA4IiwiZXhwb3J0IG9wdGlvbnMgaW5jbHVkZSBzZWxlY3RlZCBtYXAgb3IgYWxsIG1hcHMsIHdpdGggYWxsLW1hcCBvdXRwdXQgcGxhY2VkIHVuZGVyIGFuIGFsbCBkaXJlY3RvcnkiLCJvdXRwdXQgbW9kZXMgc2hvd24gaW5jbHVkZSBMMUosIERJUiBhbmQgREVCVUc7IHRoZSBzb3VyY2UgZG9lcyBub3QgZXN0YWJsaXNoIHRoZSBzZW1hbnRpYyBkaWZmZXJlbmNlIGFtb25nIHRob3NlIG1vZGVzIl0sImFydGlmYWN0cyI6W10sInRvb2xzIjpbIk1hcFRvb2wiXSwiY2xhc3NlcyI6W10sIm1ldGhvZHMiOltdLCJmaWVsZHMiOltdLCJwYWNrZXRzIjpbXSwib3Bjb2RlcyI6W10sInJlc291cmNlcyI6WyJjbGllbnQgbWFwIGRhdGEiLCJleHBvcnRlZCBtYXAgdGV4dCJdLCJwcm9jZWR1cmVzIjpbInNlbGVjdCBhIG1hcCBmcm9tIGludmVudG9yeSIsInByZXZpZXcgbWFwIGFuZCBtYXAgaW5mb3JtYXRpb24iLCJ0b2dnbGUgcmVnaW9uIHZpc3VhbGl6YXRpb24iLCJleHBvcnQgc2VsZWN0ZWQgb3IgYWxsIG1hcCBkYXRhIG9ubHkgd2hlbiBuZWVkZWQiXSwibGltaXRhdGlvbnMiOlsiTDFKL0RJUi9ERUJVRyBvdXRwdXQtbW9kZSBkaWZmZXJlbmNlcyB3ZXJlIG5vdCByZXNlYXJjaGVkIGJ5IHRoZSBhdXRob3IiLCJsZWdhY3kgbWFwIGZvcm1hdC90b29sIGJlaGF2aW9yIHJlcXVpcmVzIDguOCB2YWxpZGF0aW9uIl0sInByb2plY3RfcmVsZXZhbmNlIjpbInN1cHBvcnRzIGFuIGluZGV4L2xpc3QtZmlyc3QgbWFwIGJyb3dzZXIgd2l0aCBzZWxlY3RpdmUgcHJldmlldy9leHBvcnQiLCJyZWdpb24gb3ZlcmxheXMgY2FuIGhlbHAgY29ycmVsYXRlIGNsaWVudCBnZW9tZXRyeSB3aXRoIHNlcnZlciBtYXAgcnVsZXMiXSwic3VwcG9ydHMiOltdLCJjb25mbGljdHMiOltdLCJ2ZXJpZnkiOlsiZW51bWVyYXRlIGFjdHVhbCA4LjggbWFwIGZpbGVzIGFuZCByZWdpb24gbWV0YWRhdGEiLCJ2YWxpZGF0ZSBzYWZlL2NvbWJhdC1yZWdpb24gc2VtYW50aWNzIGFnYWluc3Qgc2VydmVyL3J1bnRpbWUgZXZpZGVuY2UiXSwiZXZpZGVuY2VfbGV2ZWwiOiJyZXNlYXJjaCIsInZlcnNpb25fc3RhdHVzIjoidW52ZXJpZmllZCIsImVpZ2h0X2VpZ2h0X3N0YXR1cyI6InVudmVyaWZpZWQiLCJyZWFkX3N0YXR1cyI6ImNvbXBsZXRlIn0KeyJpZCI6IkpKLTAwMDIxMSIsInVybCI6Imh0dHBzOi8vbW9yb3NlZG9nLmdpdGxhYi5pby9wcml2YXRlLWxpbmVhZ2UtMjAyMjAyMjMtcHJpdmF0ZS1saW5lYWdlLTkwLyIsImNhbm9uaWNhbF91cmwiOiJodHRwczovL21vcm9zZWRvZy5naXRsYWIuaW8vcHJpdmF0ZS1saW5lYWdlLTIwMjIwMjIzLXByaXZhdGUtbGluZWFnZS05MC8iLCJ0aXRsZSI6IuWkqeWggueugOS8uiB8IExpbmVhZ2UgTWFwIFYxIOW3peWFtyIsInNvdXJjZSI6IkouSi4ncyBCbG9ncyIsInB1Ymxpc2hlZF9hdCI6IjIwMjItMDItMjMiLCJkb21haW5zIjpbIkNsaWVudCJdLCJ0b3BpY3MiOlsiTGluZWFnZSIsIm1hcCIsIlRJT CIsIm1hdGVyaWFsIiwibWFwIGV4cG9ydCIsIkxpbmVhZ2VNYXAiXSwidmVyc2lvbnMiOlsibGVnYWN5IExpbmVhZ2UgY2xpZW50IHdvcmtmbG93OyBhcnRpY2xlIGNvbnRleHQiXSwiY2xhaW1zIjpbIkxpbmVhZ2VNYXAuZXhlIGNhbiBleHBvcnQgc2VsZWN0ZWQgb3IgYWxsIGNsaWVudCBtYXAgZmlsZXMgYW5kIHNlcGFyYXRlbHkgZXhwb3J0IG1hdGVyaWFsL1RJT CByZXNvdXJjZXMgaW4gdGhlIGRlbW9uc3RyYXRlZCB3b3JrZmxvdyIsInRoZSB0b29sIGxpbmtzIG1hcCBicm93c2luZyB3aXRoIHRoZSBtYXRlcmlhbCByZXNvdXJjZXMgdXNlZCBieSBtYXBzIl0sInRlY2huaWNhbF9kZXRhaWxzIjpbInRoZSBjbGllbnQgcGF0aCBpcyBjb25maWd1cmVkIGZpcnN0IGFuZCB0aGUgYXJ0aWNsZSBzYXlzIHRvIHJlc3RhcnQgdGhlIHRvb2wgYWZ0ZXIgc2V0dGluZyBpdCIsImZ1bmN0aW9ucyBzaG93biBpbmNsdWRlIHNhdmUgc2VsZWN0ZWQvYWxsIG1hcHMsIHNhdmUgc2VsZWN0ZWQvYWxsIG1hdGVyaWFsIGZpbGVzIGFuZCBjb3B5IG1hcCBJRCIsInRoZSBVSSBhbHNvIGV4cG9zZXMgQ29tcGFyZSBhbmQgUmVwYWlyIFRpbGUgLmlkeCAucGFrIGZ1bmN0aW9ucywgYnV0IHRoZSBzb3VyY2UgZXhwbGljaXRseSBkb2VzIG5vdCBlc3RhYmxpc2ggdGhlaXIgYmVoYXZpb3IiXSwiYXJ0aWZhY3RzIjpbXSwidG9vbHMiOlsiTGluZWFnZU1hcC5leGUiXSwiY2xhc3NlcyI6W10sIm1ldGhvZHMiOltdLCJmaWVsZHMiOltdLCJwYWNrZXRzIjpbXSwib3Bjb2RlcyI6W10sInJlc291cmNlcyI6WyIqLm1hcCIsIioudGlsIiwiVGlsZS5pZHgiLCJUaWxlLnBhayJdLCJwcm9jZWR1cmVzIjpbInNldCBjbGllbnQgZGlyZWN0b3J5IiwicmVzdGFydCB0b29sIiwic2VsZWN0IG1hcC9tYXRlcmlhbCBlbnRyaWVzIiwic2F2ZSBzZWxlY3RlZCBvciBhbGwgcmVzb3VyY2VzIGZvciBpbnNwZWN0aW9uIl0sImxpbWl0YXRpb25zIjpbIkNvbXBhcmUgYW5kIFJlcGFpciBUaWxlIC5pZHggLnBhayBzZW1hbnRpY3MgYXJlIGV4cGxpY2l0bHkgdW5rbm93bi9ub3QgcmVzZWFyY2hlZCIsImxlZ2FjeSBwYWNrYWdlIGxheW91dCBpcyBub3QgYW4gOC44IGludmFyaWFudCJdLCJwcm9qZWN0X3JlbGV2YW5jZSI6WyJzdXBwb3J0cyBsaW5raW5nIG1hcCBlbnRyaWVzIHRvIG1hdGVyaWFsL1RJT C Bwcm92ZW5hbmNlIHdoaWxlIGtlZXBpbmcgdW5rbm93biB3cml0ZS9yZXBhaXIgb3BlcmF0aW9ucyBvdXQgb2YgdGhlIHJlYWQtb25seSBUb29sa2l0Il0sInN1cHBvcnRzIjpbXSwic3RydWN0cyI6W10sImNvbmZsaWN0cyI6W10sInZlcmlmeSI6WyJtYXAgYWN0dWFsIDguOCBtYXAtdG8tVElMIGRlcGVuZGVuY2llcyIsImRvIG5vdCB1c2UgcmVwYWlyIG9wZXJhdGlvbnMgdW50aWwgdGhlaXIgc2VtYW50aWNzIGFuZCBzYWZldHkgYXJlIGluZGVwZW5kZW50bHkgdmFsaWRhdGVkIl0sImV2aWRlbmNlX2xldmVsIjoicmVzZWFyY2giLCJ2ZXJzaW9uX3N0YXR1cyI6InVudmVyaWZpZWQiLCJlaWdodF9laWdodF9zdGF0dXMiOiJ1bnZlcmlmaWVkIiwicmVhZF9zdGF0dXMiOiJjb21wbGV0ZSJ9Cg=="
-          CHECKPOINT_B64: "eyJjaGVja3BvaW50X2lkIjoiSkotQUlGSVJTVC1DUC0wMTMiLCJhcnRpY2xlX3N0YXJ0X2lkIjoiSkotMDAwMjA5IiwiYXJ0aWNsZV9lbmRfaWQiOiJKSi0wMDAyMTgiLCJjb21wbGV0ZWRfaW5fYmF0Y2giOjEwLCJjdW11bGF0aXZlX2NvbXBsZXRlZCI6MjE4LCJ0b3RhbF9hcnRpY2xlcyI6NzgzLCJyZW1haW5pbmciOjU2NSwiY2xhc3NpZmljYXRpb25fY291bnRzIjp7IkNsaWVudCI6MTAsIlNlcnZlciI6MCwiUHJvdG9jb2wiOjAsIlNoYXJlZCI6MCwiT3RoZXIiOjB9LCJpbmNvbXBsZXRlIjowLCJpbmFjY2Vzc2libGUiOjAsImR1cGxpY2F0ZV9jYW5vbmljYWxfdXJsIjowLCJkdXBsaWNhdGVfYXJ0aWNsZV9pZCI6MCwidGltZXN0YW1wIjoiMjAyNi0wOS0wOFQxMzozMTowMCswODowMCIsImNvbW1pdF9zaGEiOm51bGwsImNvbW1pdF9zaGFfc2NvcGUiOiJhdG9taWMgYmF0Y2ggY29tbWl0OyBhdXRob3JpdGF0aXZlIFNIQSBpcyBHaXQgaGlzdG9yeSBiZWNhdXNlIGFydGljbGUgYW5kIGNoZWNrcG9pbnQgbGVkZ2VycyBhcmUgY29tbWl0dGVkIHRvZ2V0aGVyIiwibm90ZXMiOlsiSkotMDAwMjA5IHRocm91Z2ggSkotMDAwMjE4IGFyZSBjb21wbGV0ZSBwdWJsaWMgYXJ0aWNsZSBib2RpZXMgZnJvbSB0aGUgRmVicnVhcnktTWF5IDIwMjIgTGluZWFnZSBjbGllbnQvcmVzb3VyY2Ugc2VyaWVzIiwiY2Fub25pY2FsIFVSTHMgYW5kIGFydGljbGUgSURzIHdlcmUgY2hlY2tlZCBhZ2FpbnN0IHRoZSBmb3JtYWwgQUktZmlyc3QgYXJ0aWNsZSBsZWRnZXIgYmVmb3JlIGluZ2VzdGlvbiIsImNvZmZlZS1wcm90ZWN0ZWQgZG93bmxvYWQvcGFzc3dvcmQgYmxvY2tzIHdlcmUgbm90IHRyZWF0ZWQgYXMgcmVhZDsgcHVibGljIHRlY2huaWNhbCBhcnRpY2xlIGJvZGllcyB3ZXJlIGNvbXBsZXRlIiwiYWxsIHdlYnNpdGUgZXZpZGVuY2UgcmVtYWlucyByZXNlYXJjaC91bnZlcmlmaWVkIGZvciBMaW5lYWdlIDguOCJdfQo="
+      - name: CP-013 safe append commit push verify
         run: |
-          printf '%s' "$ARTICLES_B64" | base64 -d > /tmp/jj_articles_013.jsonl
-          printf '%s' "$CHECKPOINT_B64" | base64 -d > /tmp/jj_checkpoint_013.jsonl
-
-      - name: Verify CP-012 baseline and append CP-013
-        run: |
+          base64 -d .github/jj_ingest/cp013_articles.gz.b64 | gzip -d > /tmp/jj_articles.jsonl
+          base64 -d .github/jj_ingest/cp013_checkpoint.gz.b64 | gzip -d > /tmp/jj_checkpoint.jsonl
           git fetch origin main
           test "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)"
           python tools/jj_ledger.py validate
           python - <<'PY'
           import json
           from pathlib import Path
-          a=[json.loads(x) for x in Path("research/article_ledger.jsonl").read_text(encoding="utf-8").splitlines()]
-          c=[json.loads(x) for x in Path("research/checkpoint_ledger.jsonl").read_text(encoding="utf-8").splitlines()]
-          assert a[-1]["id"]=="JJ-000208", a[-1]["id"]
-          assert c[-1]["checkpoint_id"]=="JJ-AIFIRST-CP-012", c[-1]["checkpoint_id"]
-          assert c[-1]["cumulative_completed"]==208 and c[-1]["remaining"]==575
-          assert len({r["id"] for r in a})==len(a)
-          assert len({r["canonical_url"] for r in a})==len(a)
+          a=[json.loads(x) for x in Path('research/article_ledger.jsonl').read_text(encoding='utf-8').splitlines()]
+          c=[json.loads(x) for x in Path('research/checkpoint_ledger.jsonl').read_text(encoding='utf-8').splitlines()]
+          assert a[-1]['id']=='JJ-000208', a[-1]['id']
+          assert c[-1]['checkpoint_id']=='JJ-AIFIRST-CP-012', c[-1]['checkpoint_id']
+          assert c[-1]['cumulative_completed']==208 and c[-1]['remaining']==575
+          assert len({r['id'] for r in a})==len(a)
+          assert len({r['canonical_url'] for r in a})==len(a)
           PY
-          python tools/jj_ledger.py append --articles /tmp/jj_articles_013.jsonl --checkpoint /tmp/jj_checkpoint_013.jsonl --dry-run
-          python tools/jj_ledger.py append --articles /tmp/jj_articles_013.jsonl --checkpoint /tmp/jj_checkpoint_013.jsonl
+          python tools/jj_ledger.py append --articles /tmp/jj_articles.jsonl --checkpoint /tmp/jj_checkpoint.jsonl --dry-run
+          python tools/jj_ledger.py append --articles /tmp/jj_articles.jsonl --checkpoint /tmp/jj_checkpoint.jsonl
           python tools/jj_ledger.py validate
-
-      - name: Commit and push CP-013
-        id: cp13
-        run: |
-          SHA=$(python tools/jj_ledger.py commit --message "JJ AI-first CP-013: add JJ-000209 through JJ-000218" | tail -n 1)
-          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+          SHA13=$(python tools/jj_ledger.py commit --message "JJ AI-first CP-013: add JJ-000209 through JJ-000218" | tail -n 1)
+          echo "SHA13=$SHA13" >> "$GITHUB_ENV"
           python tools/jj_ledger.py push
-
-      - name: Verify CP-013 from origin/main
-        run: |
           git fetch origin main
           git show origin/main:research/article_ledger.jsonl > /tmp/remote_articles.jsonl
           git show origin/main:research/checkpoint_ledger.jsonl > /tmp/remote_checkpoints.jsonl
           python - <<'PY'
           import json
           from pathlib import Path
-          def read(p):
+          def rd(p):
               rows=[]
-              for i,line in enumerate(Path(p).read_text(encoding="utf-8").splitlines(),1):
-                  assert line.strip(), (p,i,"blank")
+              for i,line in enumerate(Path(p).read_text(encoding='utf-8').splitlines(),1):
+                  assert line.strip(), (p,i,'blank')
                   rows.append(json.loads(line))
               return rows
-          a=read("/tmp/remote_articles.jsonl"); c=read("/tmp/remote_checkpoints.jsonl")
-          assert a[-1]["id"]=="JJ-000218"
-          assert c[-1]["checkpoint_id"]=="JJ-AIFIRST-CP-013"
-          assert c[-1]["cumulative_completed"]==218 and c[-1]["total_articles"]==783 and c[-1]["remaining"]==565
-          assert len({r["id"] for r in a})==len(a)
-          assert len({r["canonical_url"] for r in a})==len(a)
-          print("CP013_REMOTE_VERIFIED", len(a), a[-1]["id"], c[-1]["checkpoint_id"], c[-1]["cumulative_completed"], c[-1]["remaining"])
+          a=rd('/tmp/remote_articles.jsonl'); c=rd('/tmp/remote_checkpoints.jsonl')
+          assert a[-1]['id']=='JJ-000218'
+          assert c[-1]['checkpoint_id']=='JJ-AIFIRST-CP-013'
+          assert c[-1]['cumulative_completed']==218 and c[-1]['total_articles']==783 and c[-1]['remaining']==565
+          assert len({r['id'] for r in a})==len(a)
+          assert len({r['canonical_url'] for r in a})==len(a)
+          print('CP013_REMOTE_VERIFIED', a[-1]['id'], c[-1]['checkpoint_id'], c[-1]['cumulative_completed'], c[-1]['remaining'])
           PY
 
-      - name: Write CP-014 inputs
-        env:
-          ARTICLES_B64: "eyJpZCI6IkpKLTAwMDIxOSIsInVybCI6Imh0dHBzOi8vbW9yb3NlZG9nLmdpdGxhYi5pby9wcml2YXRlLWxpbmVhZ2UtMjAyMjA1MDMtcHJpdmF0ZS1saW5lYWdlLTk4LyIsImNhbm9uaWNhbF91cmwiOiJodHRwczovL21vcm9zZWRvZy5naXRsYWIuaW8vcHJpdmF0ZS1saW5lYWdlLTIwMjIwNTAzLXByaXZhdGUtbGluZWFnZS05OC8iLCJ0aXRsZSI6IuWkqeWggueugOS8uiB8IOm7nu 擊跳轉其他對話檔分析<Link篇>","source":"J.J.'s Blogs","published_at":"2022-05-03","domains":["Client","Server","Shared"],"topics":["Lineage","HTML","dialog","link","NPC","client-side navigation"],"versions":["Lineage 3.81C client / L1J-3.80c context"],"claims":["the article demonstrates that the dialog link attribute can navigate from one client dialog resource to another without being treated as a server action","link can be attached to text anchors and image elements in the examined client"],"technical_details":["warehouse NPC example resolves through spawnlist_npc/npcaction to a client dialog and uses <a link=\"gothamwp\"> style navigation","image elements can also use a link attribute","the article demonstrates navigation to a newly prepared dialog resource when that resource exists","the source describes link as suitable for pure text/dialog page navigation rather than server-side action execution"],"artifacts":[],"tools":[],"classes":[],"methods":[],"fields":[],"packets":[],"opcodes":[],"resources":["NPC HTML dialog"],"procedures":["resolve source dialog","identify link target resource name","observe navigation while monitoring whether any outbound packet is emitted"],"limitations":["legacy 3.81C behavior must not be assumed for 8.8","article naming contains minor editorial inconsistencies around the example dialog"],"project_relevance":["strong evidence to keep client-side Link navigation separate from server-side Action dispatch"],"supports":["JJ-000214","JJ-000215"],"conflicts":[],"verify":["capture 8.8 network/runtime evidence to prove whether link navigation is purely local"],"evidence_level":"research","version_status":"unverified","eight_eight_status":"unverified","read_status":"complete"}
-...TRUNCATED_IN_TOOL_CALL_FOR_DISPLAY...
-"
-          CHECKPOINT_B64: "eyJjaGVja3BvaW50X2lkIjoiSkotQUlGSVJTVC1DUC0wMTQiLCJhcnRpY2xlX3N0YXJ0X2lkIjoiSkotMDAwMjE5IiwiYXJ0aWNsZV9lbmRfaWQiOiJKSi0wMDAyMjgiLCJjb21wbGV0ZWRfaW5fYmF0Y2giOjEwLCJjdW11bGF0aXZlX2NvbXBsZXRlZCI6MjI4LCJ0b3RhbF9hcnRpY2xlcyI6NzgzLCJyZW1haW5pbmciOjU1NSwiY2xhc3NpZmljYXRpb25fY291bnRzIjp7IkNsaWVudCI6MTAsIlNlcnZlciI6MCwiUHJvdG9jb2wiOjAsIlNoYXJlZCI6MCwiT3RoZXIiOjB9LCJpbmNvbXBsZXRlIjowLCJpbmFjY2Vzc2libGUiOjAsImR1cGxpY2F0ZV9jYW5vbmljYWxfdXJsIjowLCJkdXBsaWNhdGVfYXJ0aWNsZV9pZCI6MCwidGltZXN0YW1wIjoiMjAyNi0wOS0wOFQxMzozMTowMCswODowMCIsImNvbW1pdF9zaGEiOm51bGwsImNvbW1pdF9zaGFfc2NvcGUiOiJhdG9taWMgYmF0Y2ggY29tbWl0OyBhdXRob3JpdGF0aXZlIFNIQSBpcyBHaXQgaGlzdG9yeSBiZWNhdXNlIGFydGljbGUgYW5kIGNoZWNrcG9pbnQgbGVkZ2VycyBhcmUgY29tbWl0dGVkIHRvZ2V0aGVyIiwibm90ZXMiOlsiSkotMDAwMjE5IHRocm91Z2ggSkotMDAwMjI4IGFyZSBjb21wbGV0ZSBwdWJsaWMgYXJ0aWNsZSBib2RpZXMgZnJvbSB0aGUgTWF5IDIwMjIgTGluZWFnZSBkaWFsb2cvYWN0aW9uL21vcnBoIHNlcmllcyIsImNhbm9uaWNhbCBVUkxzIGFuZCBhcnRpY2xlIElEcyB3ZXJlIGNoZWNrZWQgYWdhaW5zdCB0aGUgZm9ybWFsIEFJLWZpcnN0IGFydGljbGUgbGVkZ2VyIGJlZm9yZSBpbmdlc3Rpb24iLCJhbGwgd2Vic2l0ZSBldmlkZW5jZSByZW1haW5zIHJlc2VhcmNoL3VudmVyaWZpZWQgZm9yIExpbmVhZ2UgOC44Iiwic3RvcCBhZnRlciBDUC0wMTQgcGVyIGNvbnRyb2xsZWQgMjAtYXJ0aWNsZSBydW4iXX0K"
+      - name: CP-014 safe append commit push verify
         run: |
-          printf '%s' "$ARTICLES_B64" | base64 -d > /tmp/jj_articles_014.jsonl
-          printf '%s' "$CHECKPOINT_B64" | base64 -d > /tmp/jj_checkpoint_014.jsonl
-
-      - name: Verify CP-013 baseline and append CP-014
-        run: |
+          base64 -d .github/jj_ingest/cp014_articles.gz.b64 | gzip -d > /tmp/jj_articles.jsonl
+          base64 -d .github/jj_ingest/cp014_checkpoint.gz.b64 | gzip -d > /tmp/jj_checkpoint.jsonl
           git fetch origin main
           test "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)"
           python tools/jj_ledger.py validate
           python - <<'PY'
           import json
           from pathlib import Path
-          a=[json.loads(x) for x in Path("research/article_ledger.jsonl").read_text(encoding="utf-8").splitlines()]
-          c=[json.loads(x) for x in Path("research/checkpoint_ledger.jsonl").read_text(encoding="utf-8").splitlines()]
-          assert a[-1]["id"]=="JJ-000218", a[-1]["id"]
-          assert c[-1]["checkpoint_id"]=="JJ-AIFIRST-CP-013", c[-1]["checkpoint_id"]
-          assert c[-1]["cumulative_completed"]==218 and c[-1]["remaining"]==565
+          a=[json.loads(x) for x in Path('research/article_ledger.jsonl').read_text(encoding='utf-8').splitlines()]
+          c=[json.loads(x) for x in Path('research/checkpoint_ledger.jsonl').read_text(encoding='utf-8').splitlines()]
+          assert a[-1]['id']=='JJ-000218', a[-1]['id']
+          assert c[-1]['checkpoint_id']=='JJ-AIFIRST-CP-013', c[-1]['checkpoint_id']
+          assert c[-1]['cumulative_completed']==218 and c[-1]['remaining']==565
           PY
-          python tools/jj_ledger.py append --articles /tmp/jj_articles_014.jsonl --checkpoint /tmp/jj_checkpoint_014.jsonl --dry-run
-          python tools/jj_ledger.py append --articles /tmp/jj_articles_014.jsonl --checkpoint /tmp/jj_checkpoint_014.jsonl
+          python tools/jj_ledger.py append --articles /tmp/jj_articles.jsonl --checkpoint /tmp/jj_checkpoint.jsonl --dry-run
+          python tools/jj_ledger.py append --articles /tmp/jj_articles.jsonl --checkpoint /tmp/jj_checkpoint.jsonl
           python tools/jj_ledger.py validate
-
-      - name: Commit and push CP-014
-        id: cp14
-        run: |
-          SHA=$(python tools/jj_ledger.py commit --message "JJ AI-first CP-014: add JJ-000219 through JJ-000228" | tail -n 1)
-          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+          SHA14=$(python tools/jj_ledger.py commit --message "JJ AI-first CP-014: add JJ-000219 through JJ-000228" | tail -n 1)
+          echo "SHA14=$SHA14" >> "$GITHUB_ENV"
           python tools/jj_ledger.py push
-
-      - name: Verify CP-014 from origin/main
-        run: |
           git fetch origin main
-          git show origin/main:research/article_ledger.jsonl > /tmp/remote_articles_014.jsonl
-          git show origin/main:research/checkpoint_ledger.jsonl > /tmp/remote_checkpoints_014.jsonl
+          git show origin/main:research/article_ledger.jsonl > /tmp/remote_articles.jsonl
+          git show origin/main:research/checkpoint_ledger.jsonl > /tmp/remote_checkpoints.jsonl
           python - <<'PY'
           import json
           from pathlib import Path
-          def read(p):
+          def rd(p):
               rows=[]
-              for i,line in enumerate(Path(p).read_text(encoding="utf-8").splitlines(),1):
-                  assert line.strip(), (p,i,"blank")
+              for i,line in enumerate(Path(p).read_text(encoding='utf-8').splitlines(),1):
+                  assert line.strip(), (p,i,'blank')
                   rows.append(json.loads(line))
               return rows
-          a=read("/tmp/remote_articles_014.jsonl"); c=read("/tmp/remote_checkpoints_014.jsonl")
-          assert a[-1]["id"]=="JJ-000228"
-          assert c[-1]["checkpoint_id"]=="JJ-AIFIRST-CP-014"
-          assert c[-1]["cumulative_completed"]==228 and c[-1]["total_articles"]==783 and c[-1]["remaining"]==555
-          assert len({r["id"] for r in a})==len(a)
-          assert len({r["canonical_url"] for r in a})==len(a)
-          print("CP014_REMOTE_VERIFIED", len(a), a[-1]["id"], c[-1]["checkpoint_id"], c[-1]["cumulative_completed"], c[-1]["remaining"])
+          a=rd('/tmp/remote_articles.jsonl'); c=rd('/tmp/remote_checkpoints.jsonl')
+          assert a[-1]['id']=='JJ-000228'
+          assert c[-1]['checkpoint_id']=='JJ-AIFIRST-CP-014'
+          assert c[-1]['cumulative_completed']==228 and c[-1]['total_articles']==783 and c[-1]['remaining']==555
+          assert len({r['id'] for r in a})==len(a)
+          assert len({r['canonical_url'] for r in a})==len(a)
+          print('CP014_REMOTE_VERIFIED', a[-1]['id'], c[-1]['checkpoint_id'], c[-1]['cumulative_completed'], c[-1]['remaining'])
           PY
 
       - name: Report commit SHAs
         run: |
-          echo "CP013_COMMIT=${{ steps.cp13.outputs.sha }}"
-          echo "CP014_COMMIT=${{ steps.cp14.outputs.sha }}"
+          echo "CP013_COMMIT=$SHA13"
+          echo "CP014_COMMIT=$SHA14"
