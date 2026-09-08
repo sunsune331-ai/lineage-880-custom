@@ -1,0 +1,130 @@
+name: JJ CP015-CP016 ingest
+on:
+  push:
+    paths:
+      - '.github/workflows/jj-cp015-cp016-ingest.yml'
+permissions:
+  contents: write
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: jj-ledger-ingest
+      cancel-in-progress: false
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: CP-015 safe append commit push verify
+        run: |
+          base64 -d .github/jj_ingest/cp015_articles.gz.b64 | gzip -d > /tmp/jj_articles.jsonl
+          base64 -d .github/jj_ingest/cp015_checkpoint.gz.b64 | gzip -d > /tmp/jj_checkpoint.jsonl
+          git fetch origin main
+          test "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)"
+          python tools/jj_ledger.py validate
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          a=[json.loads(x) for x in Path('research/article_ledger.jsonl').read_text(encoding='utf-8').splitlines()]
+          c=[json.loads(x) for x in Path('research/checkpoint_ledger.jsonl').read_text(encoding='utf-8').splitlines()]
+          incoming=[json.loads(x) for x in Path('/tmp/jj_articles.jsonl').read_text(encoding='utf-8').splitlines()]
+          assert a[-1]['id']=='JJ-000228', a[-1]['id']
+          assert c[-1]['checkpoint_id']=='JJ-AIFIRST-CP-014', c[-1]['checkpoint_id']
+          assert c[-1]['cumulative_completed']==228 and c[-1]['remaining']==555
+          assert len(incoming)==10
+          assert incoming[0]['id']=='JJ-000229' and incoming[-1]['id']=='JJ-000238'
+          assert all(r['read_status']=='complete' for r in incoming)
+          assert all(r['evidence_level']=='research' and r['version_status']=='unverified' and r['eight_eight_status']=='unverified' for r in incoming)
+          assert len({r['id'] for r in a+incoming})==len(a)+len(incoming)
+          assert len({r['canonical_url'] for r in a+incoming})==len(a)+len(incoming)
+          PY
+          python tools/jj_ledger.py append --articles /tmp/jj_articles.jsonl --checkpoint /tmp/jj_checkpoint.jsonl --dry-run
+          python tools/jj_ledger.py append --articles /tmp/jj_articles.jsonl --checkpoint /tmp/jj_checkpoint.jsonl
+          python tools/jj_ledger.py validate
+          SHA15=$(python tools/jj_ledger.py commit --message "JJ AI-first CP-015: add JJ-000229 through JJ-000238" | tail -n 1)
+          echo "SHA15=$SHA15" >> "$GITHUB_ENV"
+          python tools/jj_ledger.py push
+          git fetch origin main
+          git show origin/main:research/article_ledger.jsonl > /tmp/remote_articles.jsonl
+          git show origin/main:research/checkpoint_ledger.jsonl > /tmp/remote_checkpoints.jsonl
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          def rd(p):
+              rows=[]
+              for i,line in enumerate(Path(p).read_text(encoding='utf-8').splitlines(),1):
+                  assert line.strip(), (p,i,'blank')
+                  rows.append(json.loads(line))
+              return rows
+          a=rd('/tmp/remote_articles.jsonl'); c=rd('/tmp/remote_checkpoints.jsonl')
+          assert a[-1]['id']=='JJ-000238'
+          assert c[-1]['checkpoint_id']=='JJ-AIFIRST-CP-015'
+          assert c[-1]['cumulative_completed']==238 and c[-1]['total_articles']==783 and c[-1]['remaining']==545
+          assert len({r['id'] for r in a})==len(a)
+          assert len({r['canonical_url'] for r in a})==len(a)
+          print('CP015_REMOTE_VERIFIED', a[-1]['id'], c[-1]['checkpoint_id'], c[-1]['cumulative_completed'], c[-1]['remaining'])
+          PY
+
+      - name: CP-016 safe append commit push verify
+        run: |
+          base64 -d .github/jj_ingest/cp016_articles.gz.b64 | gzip -d > /tmp/jj_articles.jsonl
+          base64 -d .github/jj_ingest/cp016_checkpoint.gz.b64 | gzip -d > /tmp/jj_checkpoint.jsonl
+          git fetch origin main
+          test "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)"
+          python tools/jj_ledger.py validate
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          a=[json.loads(x) for x in Path('research/article_ledger.jsonl').read_text(encoding='utf-8').splitlines()]
+          c=[json.loads(x) for x in Path('research/checkpoint_ledger.jsonl').read_text(encoding='utf-8').splitlines()]
+          incoming=[json.loads(x) for x in Path('/tmp/jj_articles.jsonl').read_text(encoding='utf-8').splitlines()]
+          assert a[-1]['id']=='JJ-000238', a[-1]['id']
+          assert c[-1]['checkpoint_id']=='JJ-AIFIRST-CP-015', c[-1]['checkpoint_id']
+          assert c[-1]['cumulative_completed']==238 and c[-1]['remaining']==545
+          assert len(incoming)==10
+          assert incoming[0]['id']=='JJ-000239' and incoming[-1]['id']=='JJ-000248'
+          assert all(r['read_status']=='complete' for r in incoming)
+          assert all(r['evidence_level']=='research' and r['version_status']=='unverified' and r['eight_eight_status']=='unverified' for r in incoming)
+          assert len({r['id'] for r in a+incoming})==len(a)+len(incoming)
+          assert len({r['canonical_url'] for r in a+incoming})==len(a)+len(incoming)
+          PY
+          python tools/jj_ledger.py append --articles /tmp/jj_articles.jsonl --checkpoint /tmp/jj_checkpoint.jsonl --dry-run
+          python tools/jj_ledger.py append --articles /tmp/jj_articles.jsonl --checkpoint /tmp/jj_checkpoint.jsonl
+          python tools/jj_ledger.py validate
+          SHA16=$(python tools/jj_ledger.py commit --message "JJ AI-first CP-016: add JJ-000239 through JJ-000248" | tail -n 1)
+          echo "SHA16=$SHA16" >> "$GITHUB_ENV"
+          python tools/jj_ledger.py push
+          git fetch origin main
+          git show origin/main:research/article_ledger.jsonl > /tmp/remote_articles.jsonl
+          git show origin/main:research/checkpoint_ledger.jsonl > /tmp/remote_checkpoints.jsonl
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          def rd(p):
+              rows=[]
+              for i,line in enumerate(Path(p).read_text(encoding='utf-8').splitlines(),1):
+                  assert line.strip(), (p,i,'blank')
+                  rows.append(json.loads(line))
+              return rows
+          a=rd('/tmp/remote_articles.jsonl'); c=rd('/tmp/remote_checkpoints.jsonl')
+          assert a[-1]['id']=='JJ-000248'
+          assert c[-1]['checkpoint_id']=='JJ-AIFIRST-CP-016'
+          assert c[-1]['cumulative_completed']==248 and c[-1]['total_articles']==783 and c[-1]['remaining']==535
+          assert len({r['id'] for r in a})==len(a)
+          assert len({r['canonical_url'] for r in a})==len(a)
+          print('CP016_REMOTE_VERIFIED', a[-1]['id'], c[-1]['checkpoint_id'], c[-1]['cumulative_completed'], c[-1]['remaining'])
+          PY
+
+      - name: Report commit SHAs
+        run: |
+          echo "CP015_COMMIT=$SHA15"
+          echo "CP016_COMMIT=$SHA16"
