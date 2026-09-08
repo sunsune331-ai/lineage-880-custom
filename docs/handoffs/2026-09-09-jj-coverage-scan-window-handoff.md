@@ -6,13 +6,15 @@ This file is the durable handoff for closing the current ChatGPT window and cont
 
 The new chat must treat GitHub as the source of truth and must re-read current branch state before continuing. Do not rely on remembered chat state when it conflicts with GitHub.
 
-## Current verified GitHub state
+This handoff was first committed to `main` as `a12d22f59819b44be88b8876c9a59fc69576f212`. The formal scan ledgers were not changed by that documentation commit. Because further commits may occur, always re-read live `main` before resuming.
+
+## Current verified GitHub state at handoff creation
 
 Repository: `sunsune331-ai/lineage-880-custom`
 
 ### `main`
 
-Verified HEAD at handoff time:
+Formal-ledger baseline immediately before the handoff documentation commit:
 
 `369addeee38ea6eaff798443dde20eaa809b4082`
 
@@ -215,8 +217,8 @@ After that:
 A new project chat should first read this handoff and then verify live GitHub state. Its first actions must be:
 
 1. Read `docs/handoffs/2026-09-09-jj-coverage-scan-window-handoff.md` from `main`.
-2. Read `main` HEAD and formal site-scan tail.
-3. Read `jj-scan-inbox` HEAD and enumerate READY files/batches.
+2. Read live `main` HEAD and formal site-scan tail.
+3. Read live `jj-scan-inbox` HEAD and enumerate READY files/batches.
 4. Compute the first contiguous non-READY batch from live GitHub state.
 5. Continue Coverage from that batch with the ten-article checkpoint model.
 6. Never redo existing READY batches.
