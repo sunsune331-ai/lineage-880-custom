@@ -1,4 +1,6 @@
 import unittest
+import json
+import tempfile
 from pathlib import Path
 import sys
 
@@ -11,8 +13,8 @@ def manifest_row(ordinal: int) -> dict:
     return {
         "scan_id": f"JJ-SCAN-{ordinal:06d}",
         "ordinal": ordinal,
-        "archive_page": 1,
-        "archive_position": ordinal,
+        "archive_page": (ordinal - 1) // 10 + 1,
+        "archive_position": (ordinal - 1) % 10 + 1,
         "title": f"Article {ordinal}",
         "published_at": "2026-01-01",
         "url": f"https://example.test/{ordinal}",
@@ -55,6 +57,31 @@ class ScanLedgerTests(unittest.TestCase):
         del missing["body_read"]
         with self.assertRaisesRegex(site_scan_ledger.ScanLedgerError, "body_read must be boolean"):
             site_scan_ledger.validate_ledger(self.manifest, [missing])
+
+    def test_ingest_dry_run_accepts_false_body_read_without_writing(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            manifest_path = root / "manifest.jsonl"
+            ledger_path = root / "ledger.jsonl"
+            incoming_manifest_path = root / "incoming_manifest.jsonl"
+            incoming_scan_path = root / "incoming_scan.jsonl"
+            initial_manifest = self.manifest
+            initial_ledger = [scan_row(row, True) for row in initial_manifest]
+            incoming_manifest = [manifest_row(ordinal) for ordinal in range(11, 21)]
+            incoming_scan = [scan_row(row, False) for row in incoming_manifest]
+            for path, rows in (
+                (manifest_path, initial_manifest),
+                (ledger_path, initial_ledger),
+                (incoming_manifest_path, incoming_manifest),
+                (incoming_scan_path, incoming_scan),
+            ):
+                path.write_text("".join(json.dumps(row) + "\n" for row in rows), encoding="utf-8")
+            before = (manifest_path.read_bytes(), ledger_path.read_bytes())
+            report = site_scan_ledger.ingest(
+                manifest_path, ledger_path, incoming_manifest_path, incoming_scan_path, dry_run=True
+            )
+            self.assertTrue(report["dry_run"])
+            self.assertEqual(before, (manifest_path.read_bytes(), ledger_path.read_bytes()))
 
 
 if __name__ == "__main__":
