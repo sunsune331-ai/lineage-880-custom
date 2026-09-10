@@ -277,6 +277,13 @@ Critical rule:
 
 Reader/Preview and Writer must be rated independently.
 
+Durable external writer evidence — preserve as trace, not as 8.8 proof:
+- PakViewer Issue #7 (`https://github.com/tony1223/PakViewer/issues/7`, opened 2026-03-08): reporter states SP2 preview is correct in PakViewer but the exported SPR is corrupted in Lineage 3.8; the same SP2 converted by LineageViewer2023 works in that older client.
+- Follow-up on 2026-03-10 reports the same symptom on Lineage 3.63 and notes PakViewer-rendered frame dimensions appeared larger than older tools. This is external old-client evidence only, but it proves preview correctness is insufficient to validate writer compatibility.
+- PakViewer added SPX/SP2 read/preview/export/SPR conversion in commit `844ffcb2c07d4bdee2c8a0246fb298d0baa9ae29` (2026-02-12). At public PakViewer main snapshot `fbad69239e3e3c12ec18dfc7722bed284be093cc` (2026-07-16), `SprConvertHelper.cs` still had blob `4aba0a2a5ec5b80a3662cd8e3640afe39886a74b`, matching the writer introduced with that conversion feature; no public writer change was visible in that interval.
+- Current public writer method is a rebuild path: `SP2 decode -> RGBA -> re-slice 24x24 blocks -> recompute SPR A/B/block layout -> write new SPR`; it also writes SPR `Unknown1/Unknown2` as zero and quantizes through `RGB565 -> RGBA -> RGB555`. These are differential-inspection targets, not proven root causes of corruption.
+- Operational rating until own-8.8 proof: PakViewer SP2 Reader/Preview = useful reference; PakViewer SP2->SPR Writer = `CONFLICT / reference-only`; LineageViewer2023 output = comparison candidate, not 8.8-confirmed.
+
 Differential set:
 A = original SP2
 B = LineageViewer2023 output SPR
