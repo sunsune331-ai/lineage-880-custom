@@ -72,8 +72,8 @@ def _validate_scan_row(row: dict[str, Any], manifest_row: dict[str, Any]) -> Non
             raise ScanLedgerError(f"{scan_id}: {field} does not match immutable manifest")
     if row.get("classification") not in CLASSIFICATIONS:
         raise ScanLedgerError(f"{scan_id}: classification must be one of {sorted(CLASSIFICATIONS)}")
-    if row.get("body_read") is not True:
-        raise ScanLedgerError(f"{scan_id}: body_read must be true")
+    if not isinstance(row.get("body_read"), bool):
+        raise ScanLedgerError(f"{scan_id}: body_read must be boolean")
     rationale = row.get("rationale")
     if not isinstance(rationale, str) or not rationale.strip():
         raise ScanLedgerError(f"{scan_id}: non-empty rationale required")
@@ -108,6 +108,32 @@ def write_atomic(path: Path, content: str) -> None:
         temp.unlink(missing_ok=True)
 
 
+def write_atomic_transaction(replacements: dict[Path, str]) -> None:
+    """Replace the formal manifest and ledger together, rolling back on error."""
+    originals = {path: path.read_text(encoding="utf-8") for path in replacements}
+    staged: dict[Path, Path] = {}
+    replaced: list[Path] = []
+    try:
+        for path, content in replacements.items():
+            fd, name = tempfile.mkstemp(prefix=f".{path.name}.", suffix=".tmp", dir=path.parent, text=True)
+            staged_path = Path(name)
+            with os.fdopen(fd, "w", encoding="utf-8", newline="") as handle:
+                handle.write(content)
+                handle.flush()
+                os.fsync(handle.fileno())
+            staged[path] = staged_path
+        for path, staged_path in staged.items():
+            os.replace(staged_path, path)
+            replaced.append(path)
+    except Exception:
+        for path in reversed(replaced):
+            write_atomic(path, originals[path])
+        raise
+    finally:
+        for staged_path in staged.values():
+            staged_path.unlink(missing_ok=True)
+
+
 def append(manifest_path: Path, ledger_path: Path, incoming_path: Path, dry_run: bool) -> dict[str, Any]:
     manifest = read_jsonl(manifest_path)
     validate_manifest(manifest)
@@ -130,6 +156,50 @@ def append(manifest_path: Path, ledger_path: Path, incoming_path: Path, dry_run:
     return {"dry_run": dry_run, "incoming": len(incoming), "first_id": incoming[0]["scan_id"], "last_id": incoming[-1]["scan_id"]}
 
 
+def ingest(
+    manifest_path: Path,
+    ledger_path: Path,
+    incoming_manifest_path: Path,
+    incoming_scan_path: Path,
+    dry_run: bool,
+) -> dict[str, Any]:
+    """Validate and append one contiguous READY batch to both formal files."""
+    manifest = read_jsonl(manifest_path)
+    validate_manifest(manifest)
+    ledger = read_jsonl(ledger_path, allow_missing=True)
+    validate_ledger(manifest, ledger)
+    if len(ledger) != len(manifest):
+        raise ScanLedgerError("formal manifest and ledger must have the same record count before ingest")
+
+    incoming_manifest = read_jsonl(incoming_manifest_path)
+    incoming_scan = read_jsonl(incoming_scan_path)
+    if not incoming_manifest:
+        raise ScanLedgerError("incoming manifest is empty")
+    if len(incoming_scan) != len(incoming_manifest):
+        raise ScanLedgerError("incoming manifest and scan record counts differ")
+    combined_manifest = manifest + incoming_manifest
+    validate_manifest(combined_manifest)
+    for row, manifest_row in zip(incoming_scan, incoming_manifest):
+        _validate_scan_row(row, manifest_row)
+    combined_ledger = ledger + incoming_scan
+    validate_ledger(combined_manifest, combined_ledger)
+
+    if not dry_run:
+        manifest_text = manifest_path.read_text(encoding="utf-8")
+        ledger_text = ledger_path.read_text(encoding="utf-8")
+        manifest_prefix = manifest_text if manifest_text.endswith("\n") else manifest_text + "\n"
+        ledger_prefix = ledger_text if ledger_text.endswith("\n") else ledger_text + "\n"
+        write_atomic_transaction(
+            {
+                manifest_path: manifest_prefix + "".join(json.dumps(row, ensure_ascii=False, separators=(",", ":")) + "\n" for row in incoming_manifest),
+                ledger_path: ledger_prefix + "".join(json.dumps(row, ensure_ascii=False, separators=(",", ":")) + "\n" for row in incoming_scan),
+            }
+        )
+        validate_manifest(read_jsonl(manifest_path))
+        validate_ledger(read_jsonl(manifest_path), read_jsonl(ledger_path))
+    return {"dry_run": dry_run, "incoming": len(incoming_scan), "first_id": incoming_scan[0]["scan_id"], "last_id": incoming_scan[-1]["scan_id"]}
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Append and validate manifest-bound site scan batches")
     parser.add_argument("--manifest", type=Path, default=Path("research/site_scan_manifest.jsonl"))
@@ -139,14 +209,20 @@ def main() -> int:
     append_parser = sub.add_parser("append")
     append_parser.add_argument("--incoming", type=Path, required=True)
     append_parser.add_argument("--dry-run", action="store_true")
+    ingest_parser = sub.add_parser("ingest")
+    ingest_parser.add_argument("--incoming-manifest", type=Path, required=True)
+    ingest_parser.add_argument("--incoming-scan", type=Path, required=True)
+    ingest_parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
     try:
         manifest = read_jsonl(args.manifest)
         validate_manifest(manifest)
         if args.command == "validate":
             print(json.dumps(validate_ledger(manifest, read_jsonl(args.ledger, allow_missing=True)), ensure_ascii=False, sort_keys=True))
-        else:
+        elif args.command == "append":
             print(json.dumps(append(args.manifest, args.ledger, args.incoming, args.dry_run), ensure_ascii=False, sort_keys=True))
+        else:
+            print(json.dumps(ingest(args.manifest, args.ledger, args.incoming_manifest, args.incoming_scan, args.dry_run), ensure_ascii=False, sort_keys=True))
     except ScanLedgerError as exc:
         print(f"error: {exc}", file=os.sys.stderr)
         return 2
