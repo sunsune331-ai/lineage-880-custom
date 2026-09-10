@@ -33,7 +33,7 @@ jobs:
           from pathlib import Path
 
           EXPECTED_MAIN='eb5461cc05b1a184353b1293e28e704953c647ce'
-          EXPECTED_INBOX_BASE='515df579166133ea6fbe5fe6d0c8b0c767296875'
+          EXPECTED_INBOX_BASE='662937cfd12fd06edfc46596556d329d4b21c056'
           R=Path('research/incoming/site_scan/repair_20260910')
           CM=R/'formal_candidate_000001_000640.manifest.jsonl'
           CS=R/'formal_candidate_000001_000640.scan.jsonl'
@@ -58,19 +58,17 @@ jobs:
               for m,s in zip(ms,ss):
                   for f in IMM: assert m.get(f)==s.get(f),(m.get('scan_id'),f)
 
-          # FIRST RULE gate: live heads and validator authority must match expected state.
           assert sh('git','rev-parse','origin/main')==EXPECTED_MAIN
           assert sh('git','rev-parse','HEAD^')==EXPECTED_INBOX_BASE
           assert sh('git','rev-parse','HEAD')==sh('git','rev-parse','origin/jj-scan-inbox')
-          assert sh('git','rev-parse','HEAD:tools/site_scan_ledger.py')==sh('git','rev-parse','origin/main:tools/site_scan_ledger.py'), 'validator_not_synced'
+          assert sh('git','rev-parse','HEAD:tools/site_scan_ledger.py')==sh('git','rev-parse','origin/main:tools/site_scan_ledger.py'),'validator_not_synced'
 
           mm=rows(show('origin/main','research/site_scan_manifest.jsonl'))
           ms=rows(show('origin/main','research/site_scan_ledger.jsonl'))
           assert len(mm)==630 and len(ms)==630 and mm[-1]['ordinal']==630 and ms[-1]['ordinal']==630
           pair(mm,ms)
 
-          om,os={},{}
-          unchanged_hash={}
+          om,os={},{}; unchanged_hash={}
           for start in range(631,781,10):
               end=start+9
               mp=Path(f'research/incoming/site_scan/jj_scan_{start:06d}_{end:06d}.manifest.jsonl')
@@ -81,22 +79,14 @@ jobs:
                   unchanged_hash[str(mp)]=hashlib.sha256(mp.read_bytes()).hexdigest()
                   unchanged_hash[str(sp)]=hashlib.sha256(sp.read_bytes()).hexdigest()
 
-          # Verify the two known defects before any write.
           assert mm[382]['canonical_url']=='https://morosedog.gitlab.io/private-lineage-20210801-private-lineage-20/'
           assert mm[383]['canonical_url']=='https://morosedog.gitlab.io/private-lineage-20210730-private-lineage-18/'
           assert om[670]['canonical_url']=='https://morosedog.gitlab.io/ollydbg-20190713-OllyDBG-9/'
           assert om[671]['canonical_url']==om[670]['canonical_url']
           assert om[672]['canonical_url']=='https://morosedog.gitlab.io/ollydbg-20190712-OllyDBG-8/'
 
-          missing_m={
-            'scan_id':'JJ-SCAN-000384','ordinal':384,'archive_page':39,'archive_position':4,
-            'title':'天堂私服 | 對外設定(數據機 & WiFi-DHCP)','published_at':'2021-07-31',
-            'url':'https://morosedog.gitlab.io/private-lineage-20210731-private-lineage-19/',
-            'canonical_url':'https://morosedog.gitlab.io/private-lineage-20210731-private-lineage-19/'
-          }
-          missing_s={**missing_m,'classification':'LOW','body_read':False,
-            'rationale':'Archive index identity confirms this omitted Lineage private-server article is an external network setup entry. Body was not reread during sequence repair; shallow LOW assessment is retained as networking/deployment background.',
-            'matched_signals':['modem','WiFi','DHCP','network setup'],'already_in_ai_first_ledger':False}
+          missing_m={'scan_id':'JJ-SCAN-000384','ordinal':384,'archive_page':39,'archive_position':4,'title':'天堂私服 | 對外設定(數據機 & WiFi-DHCP)','published_at':'2021-07-31','url':'https://morosedog.gitlab.io/private-lineage-20210731-private-lineage-19/','canonical_url':'https://morosedog.gitlab.io/private-lineage-20210731-private-lineage-19/'}
+          missing_s={**missing_m,'classification':'LOW','body_read':False,'rationale':'Archive index identity confirms this omitted Lineage private-server article is an external network setup entry. Body was not reread during sequence repair; shallow LOW assessment is retained as networking/deployment background.','matched_signals':['modem','WiFi','DHCP','network setup'],'already_in_ai_first_ledger':False}
 
           cm=[copy.deepcopy(r) for r in mm[:383]]+[missing_m]
           cs=[copy.deepcopy(r) for r in ms[:383]]+[missing_s]
@@ -104,12 +94,9 @@ jobs:
           for old in range(631,640): cm.append(reindex(om[old],old+1)); cs.append(reindex(os[old],old+1))
           assert len(cm)==640 and len(cs)==640; pair(cm,cs)
           assert [r['ordinal'] for r in cm]==list(range(1,641))
-          assert ident(cm[630])==ident(mm[629])
-          assert ident(cm[631])==ident(om[631])
-          assert ident(cm[639])==ident(om[639])
+          assert ident(cm[630])==ident(mm[629]); assert ident(cm[631])==ident(om[631]); assert ident(cm[639])==ident(om[639])
           assert len({r['canonical_url'] for r in cm})==640
           wr(CM,cm); wr(CS,cs)
-
           cv=json.loads(subprocess.check_output(['python','tools/site_scan_ledger.py','--manifest',str(CM),'--ledger',str(CS),'validate'],text=True))
           assert cv['record_count']==640 and cv['tail_id']=='JJ-SCAN-000640'
 
@@ -117,8 +104,6 @@ jobs:
           for n in range(641,671): fm[n]=reindex(om[n-1],n); fs[n]=reindex(os[n-1],n)
           fm[671]=reindex(om[670],671); fs[671]=reindex(os[670],671)
           for n in range(672,681): fm[n]=reindex(om[n],n); fs[n]=reindex(os[n],n)
-
-          # Only after candidate PASS, rewrite affected staging 641-680.
           for start in (641,651,661,671):
               end=start+9
               wr(f'research/incoming/site_scan/jj_scan_{start:06d}_{end:06d}.manifest.jsonl',[fm[n] for n in range(start,end+1)])
@@ -135,27 +120,20 @@ jobs:
           assert allm[671]['canonical_url']=='https://morosedog.gitlab.io/ollydbg-20190712-OllyDBG-8/'
           assert allm[691]['canonical_url']=='https://morosedog.gitlab.io/cheatengine-20190622-cheatEngine2/'
           assert allm[779]['canonical_url']=='https://morosedog.gitlab.io/springboot-20190314-springboot3/'
-          for n,r in enumerate(allm,1):
-              assert r['archive_page']==(n-1)//10+1 and r['archive_position']==(n-1)%10+1
+          for n,r in enumerate(allm,1): assert r['archive_page']==(n-1)//10+1 and r['archive_position']==(n-1)%10+1
 
           tm=Path('/tmp/jj780m.jsonl'); ts=Path('/tmp/jj780s.jsonl'); wr(tm,allm); wr(ts,alls)
           vv=json.loads(subprocess.check_output(['python','tools/site_scan_ledger.py','--manifest',str(tm),'--ledger',str(ts),'validate'],text=True))
           assert vv['record_count']==780 and vv['tail_id']=='JJ-SCAN-000780'
           for p,h in unchanged_hash.items(): assert hashlib.sha256(Path(p).read_bytes()).hexdigest()==h,('681_780_changed',p)
 
-          report={'main_head_read':EXPECTED_MAIN,'inbox_head_start':EXPECTED_INBOX_BASE,
-            'validator_blob':sh('git','rev-parse','HEAD:tools/site_scan_ledger.py'),
-            'errors_repaired_in_candidate':2,'formal_candidate_range':'JJ-SCAN-000001..JJ-SCAN-000640',
-            'formal_candidate_count':640,'formal_candidate_validator':cv,'missing_article_inserted_at':'JJ-SCAN-000384',
-            'duplicate_removed_source_id':'OLD JJ-SCAN-000671','rebuilt_batches':['641-650','651-660','661-670','671-680'],
-            'unchanged_verified_range':'681-780','combined_range':'001-780','combined_sequence_validation':vv,
-            'canonical_duplicates':0,'ordinal_gaps':0,'status':'PRODUCER_REPAIR_READY'}
+          report={'main_head_read':EXPECTED_MAIN,'inbox_head_start':EXPECTED_INBOX_BASE,'validator_blob':sh('git','rev-parse','HEAD:tools/site_scan_ledger.py'),'errors_repaired_in_candidate':2,'formal_candidate_range':'JJ-SCAN-000001..JJ-SCAN-000640','formal_candidate_count':640,'formal_candidate_validator':cv,'missing_article_inserted_at':'JJ-SCAN-000384','duplicate_removed_source_id':'OLD JJ-SCAN-000671','rebuilt_batches':['641-650','651-660','661-670','671-680'],'unchanged_verified_range':'681-780','combined_range':'001-780','combined_sequence_validation':vv,'canonical_duplicates':0,'ordinal_gaps':0,'status':'PRODUCER_REPAIR_READY'}
           R.mkdir(parents=True,exist_ok=True)
           REPORT.write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
           READY.write_text(json.dumps({'status':'ready','repair':'384 omission + old 671 duplicate','formal_candidate_manifest':str(CM),'formal_candidate_scan':str(CS),'formal_candidate_count':640,'combined_validated_through':'JJ-SCAN-000780','rebuilt_batches':['641-650','651-660','661-670','671-680'],'unchanged_range':'681-780'},ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
           print(json.dumps(report,ensure_ascii=False,indent=2))
           PY
-          git add research/incoming/site_scan
+          git add -f research/incoming/site_scan
           git diff --cached --check
           git commit -m "research: repair JJ sequence candidate 384-680"
           git push origin HEAD:jj-scan-inbox
