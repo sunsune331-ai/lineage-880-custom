@@ -556,3 +556,73 @@ Goal-specific durable docs:
 - Main technical center of gravity now moves from Coverage acquisition to local source identity/provenance, M/M-style/SP2, Morph crosswalk, and own-8.8 validation.
 - Resource Browser remains downstream of data-model stabilization.
 - Inventory reorder remains an independent active-capable line with substantial prior evidence.
+
+## 23. CX MODEL / EFFORT ROUTING POLICY — V3
+
+Purpose: use CX modules and reasoning effort proportionally to task complexity while keeping results reproducible and avoiding unnecessary cost/latency.
+
+Approved V3 baseline modules:
+- `GPT-5.6 Sol` = primary/default engineering and difficult reasoning module.
+- `GPT-5.6 Luna` = fast mechanical/read-heavy work when the task is explicit and easy to validate.
+- `GPT-5.6 Terra` = experimental/optional; do not assign a permanent specialty until a bounded A/B test demonstrates an advantage for a specific task class.
+- `GPT-5.5` = compatibility/backup/second-opinion module; not the default for new V3 technical work.
+- `GPT-6 family` = DEFERRED / DISABLED for the current V3 baseline. Do not enable automatically.
+
+Available effort levels:
+- `LIGHT / 輕度`
+- `MEDIUM / 中`
+- `HIGH / 高`
+- `EXTREME / 極高`
+- `ULTRA`
+
+Routing defaults:
+
+| Task class | Preferred module | Effort | Examples |
+|---|---|---|---|
+| deterministic status/read/search | Luna | LIGHT-MEDIUM | git status, HEAD/SHA checks, file enumeration, manifest inspection, simple identity checks |
+| routine implementation/validation | Sol | MEDIUM | small scripts, validators, bounded transforms, ordinary fixes |
+| multi-file engineering/reasoning | Sol | HIGH | repair plans, schema changes, cross-file tracing, data-model work |
+| reverse engineering / ambiguous evidence | Sol | EXTREME | Morph resolution, SP2 structure, client runtime path, conflicting source evidence |
+| exceptional root-cause problem | Sol | ULTRA | multiple plausible hypotheses remain after EXTREME, high-cost error risk, difficult A/B/C/D differential |
+| experimental A/B only | Terra | MEDIUM-HIGH | compare one bounded task against the current Sol/Luna baseline |
+| compatibility / independent second opinion | GPT-5.5 | LIGHT-MEDIUM | legacy workflow check or independent sanity review |
+
+Escalation rules:
+1. Start at the lowest reasonable module/effort that can safely solve and validate the task.
+2. Deterministic operations should rely on tools/validators, not higher reasoning effort.
+3. If failure is caused by missing evidence, do NOT solve it by blindly increasing effort; stop and obtain the missing evidence.
+4. If the direction is valid but reasoning complexity is the blocker, escalate one level at a time.
+5. Do not repeat the same failing approach at the same model/effort indefinitely. One bounded retry is enough before escalation or fail-stop.
+6. `ULTRA` is not a default quality mode. Use it only when the problem genuinely requires it.
+7. Model choice never overrides read-only/write permissions, evidence hierarchy, validator gates, or the FIRST RULE.
+8. A new model/module is not promoted into the baseline because it is newer. It must first win a bounded, reproducible A/B validation on the relevant task type.
+
+Task-specific examples:
+- V3 P0 source inventory: Luna/LIGHT for enumeration -> Sol/MEDIUM for schema/hash/index script -> Sol/HIGH only for identity/collision logic -> EXTREME only when provenance conflicts cannot be resolved mechanically.
+- Morph/SP2 mapping: Sol/HIGH to start; EXTREME for conflicting mappings/format reasoning; ULTRA only after smaller hypotheses fail cleanly.
+- SP2 writer A/B/C/D differential: Sol/HIGH for structural diff -> EXTREME for writer/action/frame root cause -> ULTRA only if evidence remains genuinely ambiguous.
+- Inventory reorder: Sol/HIGH for existing-evidence synthesis and minimal runtime plan; EXTREME only for unresolved ABI/runtime ownership questions.
+
+CX instruction contract:
+- When GPT hands a substantial task to CX, include `MODEL_RECOMMENDATION` and `EFFORT_RECOMMENDATION` when useful.
+- CX should report the actual module/effort used if it differs from the recommendation.
+- If the recommended module is unavailable, use the nearest approved fallback rather than enabling GPT-6 automatically.
+- For critical conclusions, reproducibility and validator/readback evidence matter more than model tier.
+
+## 24. NEW-WINDOW HANDOFF CONTRACT
+
+A new GPT/CX window should be able to recover the important project state without replaying old conversations.
+
+Minimum cold-start sequence:
+1. read `docs/FAST_BOOTSTRAP.md`
+2. re-read live `main` HEAD
+3. read `docs/FULL_REFERENCE_V3.md`
+4. load only the durable docs required by the current Goal
+
+`FULL_REFERENCE_V3.md` is the broad distilled handoff: it carries the important prior conclusions, constraints, evidence discipline, closed JJ state, current technical lines, priorities, and CX model-routing policy. It is intentionally not a verbatim transcript and does not contain every raw experiment/address/log.
+
+Therefore:
+- For broad project continuity, V3 is sufficient.
+- For exact historical evidence, runtime addresses, detailed captures, or implementation specifics, follow the goal-specific durable-doc references instead of guessing.
+- Always prefer live GitHub state over snapshot SHA values embedded in V3.
+- Do not reread V1/V2 by default; use them only when tracing provenance/history.
