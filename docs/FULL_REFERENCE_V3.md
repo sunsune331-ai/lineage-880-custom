@@ -410,8 +410,8 @@ Label these as:
 
 Other important references:
 - `tony1223/PakViewer`
-- `L1j-Kiyoshi/kys8.1`
-- `baboqoo/L1J-Wanted`
+- `L1j-Kiyoshi/kys8.1` — external 8.1 server polymorph reference: `PolyTable` reads separate `id` and `polyid`, `S_ChangeShape` sends `polyId`, and SQL examples show `id != polyid`. Preserve the server-ID distinction, but do not treat it as 8.8 client mapping proof.
+- `baboqoo/L1J-Wanted` — newer/Remaster reference; `tool/spritor/` contains `Spritor.exe`, `list.spz`, and usage notes describing extraction into `spr_action` action/timing data and `spr_info` sprite metadata. Useful as an external metadata/data-model clue only; do not execute the unknown EXE by default.
 - `L1Rj/L1j-TW`
 - `uglyoldbob/l1j-client`
 - `WantedGaming/L1JR-RemasterConnector`
