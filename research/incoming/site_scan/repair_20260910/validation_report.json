@@ -1,0 +1,43 @@
+{
+  "main_head_read": "eb5461cc05b1a184353b1293e28e704953c647ce",
+  "inbox_head_start": "662937cfd12fd06edfc46596556d329d4b21c056",
+  "validator_blob": "da041e0232f65ea6be4e61c22829a6da2aa186e7",
+  "errors_repaired_in_candidate": 2,
+  "formal_candidate_range": "JJ-SCAN-000001..JJ-SCAN-000640",
+  "formal_candidate_count": 640,
+  "formal_candidate_validator": {
+    "classification_counts": {
+      "HIGH": 20,
+      "LOW": 235,
+      "MEDIUM": 103,
+      "REVIEW": 281,
+      "SKIP": 1
+    },
+    "record_count": 640,
+    "tail_id": "JJ-SCAN-000640"
+  },
+  "missing_article_inserted_at": "JJ-SCAN-000384",
+  "duplicate_removed_source_id": "OLD JJ-SCAN-000671",
+  "rebuilt_batches": [
+    "641-650",
+    "651-660",
+    "661-670",
+    "671-680"
+  ],
+  "unchanged_verified_range": "681-780",
+  "combined_range": "001-780",
+  "combined_sequence_validation": {
+    "classification_counts": {
+      "HIGH": 51,
+      "LOW": 235,
+      "MEDIUM": 103,
+      "REVIEW": 390,
+      "SKIP": 1
+    },
+    "record_count": 780,
+    "tail_id": "JJ-SCAN-000780"
+  },
+  "canonical_duplicates": 0,
+  "ordinal_gaps": 0,
+  "status": "PRODUCER_REPAIR_READY"
+}
