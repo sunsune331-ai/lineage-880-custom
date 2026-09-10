@@ -35,6 +35,38 @@ Read order:
 - GitHub = single durable truth source.
 - Prefer minimal falsifiable validation before broad research or implementation.
 
+## CX MODEL / EFFORT POLICY — V3 QUICK RULES
+
+Approved baseline:
+- GPT-5.6 Sol = primary/default engineering and difficult reasoning
+- GPT-5.6 Luna = fast deterministic/read-heavy work
+- GPT-5.6 Terra = experimental only until bounded A/B validation proves a task-specific advantage
+- GPT-5.5 = compatibility/backup/second opinion
+- GPT-6 family = DEFERRED / DISABLED for current V3 baseline; do not enable automatically
+
+Effort levels:
+`LIGHT / MEDIUM / HIGH / EXTREME / ULTRA`
+
+Default routing:
+- Luna + LIGHT/MEDIUM: git/status/SHA, enumeration, manifest inspection, simple checks
+- Sol + MEDIUM: routine scripts, validators, small bounded fixes
+- Sol + HIGH: multi-file engineering, schema/data-model work, repair planning
+- Sol + EXTREME: reverse engineering, Morph/SP2/runtime ambiguity, conflicting evidence
+- Sol + ULTRA: exceptional root-cause cases only after lower levels are insufficient
+- Terra + MEDIUM/HIGH: bounded A/B experiments only
+- GPT-5.5 + LIGHT/MEDIUM: compatibility or independent sanity review
+
+Escalation rule:
+`lowest reasonable effort -> validator/tool evidence -> one bounded retry -> escalate one level OR fail-stop`
+
+Do not use higher effort to compensate for missing evidence. Do not use ULTRA by default. Model selection never overrides read-only/write permissions, FIRST RULE, evidence hierarchy, or validator gates.
+
+For substantial CX tasks, GPT should include:
+- `MODEL_RECOMMENDATION`
+- `EFFORT_RECOMMENDATION`
+
+Full policy: `docs/FULL_REFERENCE_V3.md` section `CX MODEL / EFFORT ROUTING POLICY — V3`.
+
 ## JJ COVERAGE — COMPLETE / CLOSED
 
 Formal scope:
@@ -171,5 +203,17 @@ A correct new window must reject these false claims:
 - `invgfx directly equals SPR root` -> unconfirmed
 - `Morph list/remap is already own-8.8 confirmed` -> false
 - `Inventory reorder has no prior research` -> false
+- `GPT-6 should be enabled automatically for difficult work` -> false; V3 defers GPT-6
+- `ULTRA should be used for all CX tasks` -> false; use proportional effort
+
+## NEW-WINDOW HANDOFF EXPECTATION
+
+For broad continuity, a new window should read:
+1. `docs/FAST_BOOTSTRAP.md`
+2. live `main` HEAD
+3. `docs/FULL_REFERENCE_V3.md`
+4. only Goal-specific durable docs as needed
+
+This is sufficient to recover the important project state without replaying old conversations. Exact historical addresses/captures/raw evidence still require the referenced goal-specific documents.
 
 If broader context is needed, read `docs/FULL_REFERENCE_V3.md`.
