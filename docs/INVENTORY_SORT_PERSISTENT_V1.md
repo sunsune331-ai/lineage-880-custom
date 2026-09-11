@@ -170,6 +170,32 @@ WAITING_FOR_GAME
 
 該輪使用者未執行 manual install，直接進遊戲按整理即成功，因此 `AUTO_APPLY_ON_LOGIN = PASS`。
 
+## One-Click RC v1.02 — 使用者驗收
+
+後續建立的一鍵啟動器在人物選擇→世界載入階段曾因 auto-install 過早造成 client 閃退。已將 auto-install gate 加強為：
+
+- `WAITING_FOR_WORLD`
+- RenewalInventory manager / RenewalInventoryUI / InventoryItemGrid non-null 且 vtable 合理
+- manager+0x54 vector `begin <= end <= capacity`、對齊、item count 1–512、pointer / ID 可讀
+- 完整 inventory 指紋連續穩定至少 8 秒且至少 8 samples
+- 狀態改變或 PID 消失即重設等待
+- 通過後才 `WORLD_READY → INSTALL_BEGIN → INSTALL_SUCCESS`
+
+使用者已實測新版 One-Click RC：
+
+- 點選人物後不再閃退
+- 進入世界後整理功能正常
+- 取得新物品不自動排序
+- 按「整理」才重新排序
+
+目前仍有一個**非功能性 UI 項目**：成功安裝後會顯示「整理功能已開啟」提示視窗。使用者決定 **現在不修改**；等正式對外懶人包 / release packaging 時，再改為成功靜默、只有 fatal error 才提示。
+
+因此目前決策：
+
+- `ONECLICK_RC_FUNCTIONAL = PASS`
+- `SUCCESS_POPUP = DEFERRED_TO_PUBLIC_RELEASE`
+- 不因提示窗問題改動 sorting core、world-ready gate 或 process selection。
+
 ## Safety / scope
 
 原始 own 8.8C：
@@ -192,4 +218,4 @@ WAITING_FOR_GAME
 - 若分類錯誤：只修 specific classifier rule，做 preview → bounded runtime test。
 - 若 launch helper 再失敗：只查 process selection / wait / build gate / hook read-back，不動 accepted sorting stub。
 - 若 client build 改變：必須重新驗證 patch-site bytes / module layout，不得盲套舊 VA。
-- 若未來要包裝成更方便的一鍵啟動器，可在 helper 外層加 shortcut / launcher wrapper；功能語意仍維持「登入自動載入、取得物品不自動排序、按整理才排序」。
+- 對外懶人包階段再處理成功提示窗、乾淨 release 目錄、玩家 README / VERSION / checksums；目前功能性 RC 不因該提示窗阻塞。
