@@ -1,9 +1,9 @@
-CURRENT GOAL = 保存並交付 8.8 Inventory Sort V1 已驗收成果，將 runtime PoC、分類規則、失敗路線與小步實作流程寫回 live GitHub durable docs
+CURRENT GOAL = 將已驗收 Inventory Sort V1 完成為 external auto-apply persistent helper，並以 cold restart 驗證每次登入自動載入、取得新物品不自動排序、只有按 Sort_Btn 才整理
 STATUS = SUCCESS
-CONFIRMED = Inventory Sort V1 已由使用者驗收可接受；2-item swap PASS、first-5 item-ID sort PASS、full inventory item-ID sort PASS、hybrid 7-category sort ACCEPTED_BY_USER；manager+0x54 為可用 source order，source_item+0x08 為 item ID，source_item+0x18 為部分 use_type 分類訊號；runtime patch point 0x00DE2280，native refresh 0x00DFAB70 → 0x00DFA580 / 0x00DFA4D0
-DISPROVEN = XML-only restore 不等於 Sort 功能恢復；8.8 Sort binding/handler 並未被刪除；surface guards 不是 blocker；0x00DFAB70 不是 reorder core；manager source item layout 不可套 UI/grid item layout；use_type alone 不能完整七分類；舊 unsafe execute-HWBP capture design 禁止重用；PAK delete/add replacement 不相容
-CHANGED = 新增 docs/INVENTORY_SORT_V1_CLOSEOUT.md；更新 docs/AI_HANDOFF.md 與本狀態檔；原始 own 8.8C client/resource/server/database 均未修改
-RUNTIME EVIDENCE = 使用者實測 2-item swap 成功、前 5 件 stable item-ID sort 成功、67-entry full item-ID reorder 成功，最後七分類「武器→防具→飾品→藥水→卷軸→材料→其他」排序可接受；同分類目前 item-ID ascending + original-order stable tie-break
-BLOCKER = 無；目前唯一限制是成功版本仍為 runtime PoC，client restart 後 hook 消失；永久化尚未執行
-RECHECK NEEDED = 後續若新增物品誤分類，只修 concrete classifier rule；若要永久化，直接從 accepted V1 轉成 derived/test-client persistent implementation，不重做 Sort 根因研究
-NEXT EXECUTABLE STEP = 等待使用者新 Goal；Inventory Sort 後續先讀 INVENTORY_SORT_V1_CLOSEOUT.md 與 AI_HANDOFF.md，遵守「足夠證據→bounded reversible PoC→runtime test；PASS 擴一步、FAIL 只查 blocker」節奏
+CONFIRMED = INVENTORY_SORT_PERSISTENT_V1 = COMPLETE；AUTO_APPLY_ON_LOGIN PASS；MANUAL_SORT_BUTTON PASS；AUTO_SORT_ON_ITEM_GAIN DISABLED；cold restart 中 helper 自動等待真正 game-ready LinLogin.bin、排除 HWND=0 child/transient process、完成 path/build/patch-site gate 與 hook read-back；使用者未手動執行 --mode install 即直接按整理成功；新取得物品不自動重排，再按整理後才重新排序
+DISPROVEN = 第一個/最新 LinLogin.bin 不一定是真正遊戲 target；同一路徑可同時存在主遊戲與 MainWindowHandle=0 child/transient process；舊 launch 曾造成 NOT_INSTALLED 與 PROCESS_EXITED_HOOK_GONE，因此不得退回 first-PID/newest-PID 選擇；排序核心本身未失敗，manual install 已先證明 accepted V1 可正常工作
+CHANGED = 新增 docs/INVENTORY_SORT_PERSISTENT_V1.md；更新 docs/AI_HANDOFF.md 與本狀態檔；本地 persistent helper 位於 LineageAIResourceToolkit outputs；未永久修改測試2 LinLogin.bin disk bytes，未修改 original own 8.8C client/resource/server/database
+RUNTIME EVIDENCE = 最終 cold restart：PID 25952 從 HWND=0 → HWND=16843970 → WAITING_FOR_GAME_OBJECTS → GAME_READY，另一 PID 40988 HWND=0 被排除；STABLE_GAME_WINDOW_CONFIRMED 後 install；post_install_alive PASS、post_install_hook_readback PASS、process_path_gate PASS、build_bytes_gate PASS；使用者進遊戲後直接按整理成功，取得新物品不自動排序，再按整理才重排
+BLOCKER = 無
+RECHECK NEEDED = 若未來 client build 改變，重新驗證 module/build/patch-site bytes；若分類有誤，只修 concrete classifier rule；若 launch helper 再失敗，只查 process selection/wait/build gate/hook read-back，不重寫 accepted sorting core
+NEXT EXECUTABLE STEP = Inventory Sort Persistent V1 已完成；等待使用者新 Goal。後續 Inventory Sort 先讀 INVENTORY_SORT_V1_CLOSEOUT.md、INVENTORY_SORT_PERSISTENT_V1.md、AI_HANDOFF.md；現行需求固定為登入自動載入、取得物品不自動整理、按 Sort_Btn 才整理
