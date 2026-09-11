@@ -59,7 +59,7 @@
 - FAIL：只調查該次 FAIL 暴露的 blocker，修正後再測。
 - 只有當實驗無法做到 bounded / reversible，或證據不足以保護 client/data 時，才繼續擴大研究。
 
-Inventory Sort V1 是標準 reference example：`2-item swap → first-5 item-ID sort → full item-ID sort → seven-category sort`。
+Inventory Sort V1 是標準 reference example：`2-item swap → first-5 item-ID sort → full item-ID sort → seven-category sort → persistent helper cold restart`。
 
 ## 目前跨 Goal handoff
 
@@ -70,7 +70,11 @@ Inventory Sort V1 是標準 reference example：`2-item swap → first-5 item-ID
 
 ## Inventory Sort V1 — ACCEPTED baseline（2026-09-11）
 
-完整 closeout：[`INVENTORY_SORT_V1_CLOSEOUT.md`](INVENTORY_SORT_V1_CLOSEOUT.md)。後續 Inventory Sort Goal 必須先讀該檔，不得從零重查。
+runtime / classifier closeout：[`INVENTORY_SORT_V1_CLOSEOUT.md`](INVENTORY_SORT_V1_CLOSEOUT.md)。
+
+persistent completion：[`INVENTORY_SORT_PERSISTENT_V1.md`](INVENTORY_SORT_PERSISTENT_V1.md)。
+
+後續 Inventory Sort Goal 必須先讀這兩份檔案，不得從零重查。
 
 已由使用者實測確認：
 
@@ -94,7 +98,22 @@ Inventory Sort V1 是標準 reference example：`2-item swap → first-5 item-ID
 
 重要根因：8.8 原 Sort path 保留 callback / handler / refresh，但缺 actual order-producing step；外部 8.5M working reference 只用於 differential，不是 own 8.8 implementation authority。
 
-原始 own 8.8C `C:\架設功具\天堂(Lineage 8.8C)` 維持 strict read-only / unchanged。成功 V1 目前仍是 runtime PoC，client restart 後 hook 會消失；永久化是獨立後續 Goal。
+### Inventory Sort Persistent V1 — COMPLETE
+
+使用者已完成 cold restart 最終驗收：
+
+- `AUTO_APPLY_ON_LOGIN = PASS`
+- `MANUAL_SORT_BUTTON = PASS`
+- `AUTO_SORT_ON_ITEM_GAIN = DISABLED`
+- `INVENTORY_SORT_PERSISTENT_V1 = COMPLETE`
+
+persistent implementation 採 external auto-apply helper；測試副本 `LinLogin.bin` disk bytes 不需要永久改寫。helper 每次啟動後等待真正 game-ready `LinLogin.bin`，以測試2 ExecutablePath、`MainWindowHandle != 0`、alive/responding、game objects、module/build/patch-site bytes 與 bounded stability gate 選定 target，再安裝 accepted V1 hook並 read-back 驗證。
+
+曾反證「第一個 / 最新 LinLogin.bin 就是正確 target」：同路徑可同時存在主遊戲與 HWND=0 child/transient process。後續不得退回第一 PID / newest PID 選擇法。
+
+最終 cold restart 成功輪次選定 PID 25952（MainWindowHandle 16843970），另一 PID 40988 因 HWND=0 被排除；`post_install_alive`、hook read-back、path gate、build bytes gate 均 PASS。使用者未手動執行 `--mode install` 即直接按整理成功；取得新物品時不自動重排，再按整理後才重新排序。
+
+原始 own 8.8C `C:\架設功具\天堂(Lineage 8.8C)` 維持 strict read-only / unchanged。現行 persistent helper 已符合使用者需求；除非另開 Goal，不要改成 item-gain 自動排序，也不要為「更永久」而直接 patch disk binary。
 
 ## 2026-09-07 長聊天封存與研究節奏
 
