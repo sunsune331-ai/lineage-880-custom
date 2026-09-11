@@ -1,9 +1,9 @@
-CURRENT GOAL = 將目前長聊天的可重用資訊去重封存為 GitHub 知識，完成 commit/push 並從 origin/main 重讀驗證
+CURRENT GOAL = 保存並交付 8.8 Inventory Sort V1 已驗收成果，將 runtime PoC、分類規則、失敗路線與小步實作流程寫回 live GitHub durable docs
 STATUS = SUCCESS
-CONFIRMED = CHAT_ARCHIVE_20260907_1844 已由 origin/main 重新讀取；archive blob 24,695 bytes，含 30 個 confirmed facts、12 個 research/待驗證項、16 個 open questions、8 個 next actions；J.J. 基線維持 88/783、剩餘 695
-DISPROVEN = 舊 session heap/PID 不可重用；PromoteDollUI 不是主背包；DE1D40 初始化全 0、icon+0x94 idle writer、未連結 named sort family 均不能當成已驗證手動 reorder
-CHANGED = 新增 CHAT_ARCHIVE_20260907_1844；最小更新 AI_HANDOFF、CLIENT_UI_FUNCTION_MAP 與本狀態檔；未修改 Client/Server/Database/資源與現有 docs 結構
-RUNTIME EVIDENCE = 本輪不新增 client runtime 操作；首次 push 後 fetch 驗證 local/origin main 均為 04befe19160bc2eb3718a3edf2a88dccfbb21eaf，archive blob 1a0cefab9dd0b40d123efe6f89a8fab44382d0c2 可讀且必需 section/計數全數通過
-BLOCKER = 無
-RECHECK NEEDED = 無；未完成的 client/resource/research 問題已集中列於 archive OQ-01..OQ-16
-NEXT EXECUTABLE STEP = 等待使用者建立新 Goal；新 task 先讀 CHAT_ARCHIVE_20260907_1844、AI_HANDOFF、CODEX_STATUS、REVIEWER_FEEDBACK 與相關 Function Map
+CONFIRMED = Inventory Sort V1 已由使用者驗收可接受；2-item swap PASS、first-5 item-ID sort PASS、full inventory item-ID sort PASS、hybrid 7-category sort ACCEPTED_BY_USER；manager+0x54 為可用 source order，source_item+0x08 為 item ID，source_item+0x18 為部分 use_type 分類訊號；runtime patch point 0x00DE2280，native refresh 0x00DFAB70 → 0x00DFA580 / 0x00DFA4D0
+DISPROVEN = XML-only restore 不等於 Sort 功能恢復；8.8 Sort binding/handler 並未被刪除；surface guards 不是 blocker；0x00DFAB70 不是 reorder core；manager source item layout 不可套 UI/grid item layout；use_type alone 不能完整七分類；舊 unsafe execute-HWBP capture design 禁止重用；PAK delete/add replacement 不相容
+CHANGED = 新增 docs/INVENTORY_SORT_V1_CLOSEOUT.md；更新 docs/AI_HANDOFF.md 與本狀態檔；原始 own 8.8C client/resource/server/database 均未修改
+RUNTIME EVIDENCE = 使用者實測 2-item swap 成功、前 5 件 stable item-ID sort 成功、67-entry full item-ID reorder 成功，最後七分類「武器→防具→飾品→藥水→卷軸→材料→其他」排序可接受；同分類目前 item-ID ascending + original-order stable tie-break
+BLOCKER = 無；目前唯一限制是成功版本仍為 runtime PoC，client restart 後 hook 消失；永久化尚未執行
+RECHECK NEEDED = 後續若新增物品誤分類，只修 concrete classifier rule；若要永久化，直接從 accepted V1 轉成 derived/test-client persistent implementation，不重做 Sort 根因研究
+NEXT EXECUTABLE STEP = 等待使用者新 Goal；Inventory Sort 後續先讀 INVENTORY_SORT_V1_CLOSEOUT.md 與 AI_HANDOFF.md，遵守「足夠證據→bounded reversible PoC→runtime test；PASS 擴一步、FAIL 只查 blocker」節奏
